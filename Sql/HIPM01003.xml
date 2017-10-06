@@ -1,0 +1,1128 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+[HIMS] 진료실적 > 일간수술별실적 / 월간시술별실적
+-->
+<sqlMap namespace="HIPM01003"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://ibatis.apache.org/mapping">
+
+  <statements>
+    <!--
+    설  명 : 개인별 지표실적 조회
+    작성자 : 서단비
+    작성일 : 2015.06.15
+    
+    내  용 : 
+    수정자 : 
+    수정일 : 
+    -->
+    <select id="SelEmpList" parameterClass="ComnEnt">
+      WITH TBL AS (
+          <isNotEqual property="pPrdDvsCd" compareValue="M">
+               SELECT P.PRD_YM
+                    , R.PRD_YMD
+                    , R.HSP_CD
+                    , R.IND_CD
+                    , S.SORT_SEQ IND_SEQ
+                    , NULL  AS DEPT_CD
+                    , NULL  AS EMP_NO
+                    , M.SUM_DVS
+                    , M.CALC_TYP
+                    , M.UNIT_TYP
+                    , SUM(R.TDD_RSLT)      RAW_RSLT
+                    , SUM(R.TDD_RSLT_DNMN) RAW_RSLT_DNMN
+                    , DECODE(M.SUM_DVS, 'S', SUM(R.TDD_RSLT)
+                                          , DECODE(SUM(R.TDD_RSLT_DNMN), 0, 0, SUM(R.TDD_RSLT)/SUM(R.TDD_RSLT_DNMN)))
+                                                                                  * DECODE(M.UNIT_TYP, '07', 100, 1) RSLT
+                FROM CM_SCRN_IND_LIST S
+                    , CM_IND_MST       M
+                    , PM_IND_RSLT_DD   R
+                    , (SELECT PRD_YM FROM DD_PRD_DD WHERE PRD_YMD = #pPrdYmd#) P
+                WHERE S.HSP_CD    = #sesHspCd#
+                  AND S.MENU_CD   = #pMenuCd#
+               <isEqual property="pCond3" compareValue="1">
+                  AND S.SCRN_DOMN = '1'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="2">
+                  AND S.SCRN_DOMN = '2'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="3">
+                  AND S.SCRN_DOMN = '3'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="4">
+                  AND S.SCRN_DOMN = '4'
+               </isEqual>
+                  AND S.EMP_NO    = 'ADMIN'
+                  AND S.HSP_CD    = R.HSP_CD
+                  AND R.PRD_YMD   = #pPrdYmd#
+                  AND S.IND_CD    = R.IND_CD
+                  AND S.HSP_CD    = M.HSP_CD
+                  AND S.IND_CD    = M.IND_CD
+                GROUP BY
+                      P.PRD_YM
+                    , R.PRD_YMD
+                    , R.HSP_CD
+                    , R.IND_CD
+                    , S.SORT_SEQ
+                    , M.SUM_DVS
+                    , M.CALC_TYP
+                    , M.UNIT_TYP
+                UNION ALL
+               SELECT P.PRD_YM
+                    , R.PRD_YMD
+                    , R.HSP_CD
+                    , R.IND_CD
+                    , S.SORT_SEQ IND_SEQ
+                    , R.DEPT_CD
+                    , R.EMP_NO
+                    , M.SUM_DVS
+                    , M.CALC_TYP
+                    , M.UNIT_TYP
+                    , SUM(R.TDD_RSLT)      RAW_RSLT
+                    , SUM(R.TDD_RSLT_DNMN) RAW_RSLT_DNMN
+                    , DECODE(M.SUM_DVS, 'S', SUM(R.TDD_RSLT)
+                                          , DECODE(SUM(R.TDD_RSLT_DNMN), 0, 0, SUM(R.TDD_RSLT)/SUM(R.TDD_RSLT_DNMN)))
+                                                                                  * DECODE(M.UNIT_TYP, '07', 100, 1) RSLT
+                FROM CM_SCRN_IND_LIST S
+                    , CM_IND_MST       M
+                    , PM_IND_RSLT_DD   R
+                    , (SELECT PRD_YM FROM DD_PRD_DD WHERE PRD_YMD = #pPrdYmd#) P
+                WHERE S.HSP_CD    = #sesHspCd#
+                  AND S.MENU_CD   = #pMenuCd#
+               <isEqual property="pCond3" compareValue="1">
+                  AND S.SCRN_DOMN = '1'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="2">
+                  AND S.SCRN_DOMN = '2'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="3">
+                  AND S.SCRN_DOMN = '3'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="4">
+                  AND S.SCRN_DOMN = '4'
+               </isEqual>
+                  AND S.EMP_NO    = 'ADMIN'
+                  AND S.HSP_CD    = R.HSP_CD
+                  AND R.PRD_YMD   = #pPrdYmd#
+                  AND S.IND_CD    = R.IND_CD
+                  AND S.HSP_CD    = M.HSP_CD
+                  AND S.IND_CD    = M.IND_CD
+                GROUP BY
+                      P.PRD_YM
+                    , R.PRD_YMD
+                    , R.HSP_CD
+                    , R.IND_CD
+                    , S.SORT_SEQ
+                    , M.SUM_DVS
+                    , M.CALC_TYP
+                    , M.UNIT_TYP
+                    , R.DEPT_CD
+                    , R.EMP_NO
+          </isNotEqual>
+          <isEqual property="pPrdDvsCd" compareValue="M">
+               SELECT R.PRD_YM
+                    , R.HSP_CD
+                    , R.IND_CD
+                    , S.SORT_SEQ IND_SEQ
+                    , NULL  AS DEPT_CD
+                    , NULL  AS EMP_NO
+                    , M.SUM_DVS
+                    , M.CALC_TYP
+                    , M.UNIT_TYP
+                    , SUM(R.TMM_RSLT)      RAW_RSLT
+                    , SUM(R.TMM_RSLT_DNMN) RAW_RSLT_DNMN
+                    , DECODE(M.SUM_DVS, 'S', SUM(R.TMM_RSLT)
+                                          , DECODE(SUM(R.TMM_RSLT_DNMN), 0, 0, SUM(R.TMM_RSLT)/SUM(R.TMM_RSLT_DNMN)))
+                                                                                  * DECODE(M.UNIT_TYP, '07', 100, 1) RSLT
+                 FROM CM_SCRN_IND_LIST S
+                    , PM_IND_RSLT_MM   R
+                    , CM_IND_MST       M
+                WHERE S.HSP_CD    = #sesHspCd#
+                  AND S.MENU_CD   = #pMenuCd#
+               <isEqual property="pCond3" compareValue="1">
+                  AND S.SCRN_DOMN = '1'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="2">
+                  AND S.SCRN_DOMN = '2'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="3">
+                  AND S.SCRN_DOMN = '3'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="4">
+                  AND S.SCRN_DOMN = '4'
+               </isEqual>
+                  AND S.EMP_NO    = 'ADMIN'
+                  AND S.HSP_CD    = R.HSP_CD
+                  AND R.PRD_YM    = #pPrdYm#
+                  AND S.IND_CD    = R.IND_CD
+                  AND S.IND_CD    = M.IND_CD
+                  AND S.HSP_CD    = M.HSP_CD
+                GROUP BY
+                      R.PRD_YM
+                    , R.HSP_CD
+                    , R.IND_CD
+                    , S.SORT_SEQ
+                    , M.SUM_DVS
+                    , M.CALC_TYP
+                    , M.UNIT_TYP
+               UNION ALL
+              SELECT R.PRD_YM
+                    , R.HSP_CD
+                    , R.IND_CD
+                    , S.SORT_SEQ IND_SEQ
+                    , R.DEPT_CD
+                    , R.EMP_NO
+                    , M.SUM_DVS
+                    , M.CALC_TYP
+                    , M.UNIT_TYP
+                    , SUM(R.TMM_RSLT)      RAW_RSLT
+                    , SUM(R.TMM_RSLT_DNMN) RAW_RSLT_DNMN
+                    , DECODE(M.SUM_DVS, 'S', SUM(R.TMM_RSLT)
+                                          , DECODE(SUM(R.TMM_RSLT_DNMN), 0, 0, SUM(R.TMM_RSLT)/SUM(R.TMM_RSLT_DNMN)))
+                                                                                  * DECODE(M.UNIT_TYP, '07', 100, 1) RSLT
+                 FROM CM_SCRN_IND_LIST S
+                    , PM_IND_RSLT_MM   R
+                    , CM_IND_MST       M
+                WHERE S.HSP_CD    = #sesHspCd#
+                  AND S.MENU_CD   = #pMenuCd#
+               <isEqual property="pCond3" compareValue="1">
+                  AND S.SCRN_DOMN = '1'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="2">
+                  AND S.SCRN_DOMN = '2'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="3">
+                  AND S.SCRN_DOMN = '3'
+               </isEqual>
+               <isEqual property="pCond3" compareValue="4">
+                  AND S.SCRN_DOMN = '4'
+               </isEqual>
+                  AND S.EMP_NO    = 'ADMIN'
+                  AND S.HSP_CD    = R.HSP_CD
+                  AND R.PRD_YM    = #pPrdYm#
+                  AND S.IND_CD    = R.IND_CD
+                  AND S.IND_CD    = M.IND_CD
+                  AND S.HSP_CD    = M.HSP_CD
+                GROUP BY
+                      R.PRD_YM
+                    , R.HSP_CD
+                    , R.IND_CD
+                    , S.SORT_SEQ
+                    , M.SUM_DVS
+                    , M.CALC_TYP
+                    , M.UNIT_TYP
+                    , R.DEPT_CD
+                    , R.EMP_NO
+          </isEqual>
+            )
+       SELECT DECODE(R.EMP_NO,'-','9999999', NVL(R.EMP_NO,'00000')) AS EMP_NO
+            , DECODE(R.EMP_NO,'-','공통의',NVL(E.EMP_NM,'합  계')) AS EMP_NM
+            , SUM(DECODE(R.IND_SEQ, 1, R.RSLT, 0))  RSLT1
+            , SUM(DECODE(R.IND_SEQ, 2, R.RSLT, 0))  RSLT2
+            , SUM(DECODE(R.IND_SEQ, 3, R.RSLT, 0))  RSLT3
+            , SUM(DECODE(R.IND_SEQ, 4, R.RSLT, 0))  RSLT4
+            , SUM(DECODE(R.IND_SEQ, 5, R.RSLT, 0))  RSLT5
+            , SUM(DECODE(R.IND_SEQ, 6, R.RSLT, 0))  RSLT6
+            , SUM(DECODE(R.IND_SEQ, 7, R.RSLT, 0))  RSLT7
+            , SUM(DECODE(R.IND_SEQ, 8, R.RSLT, 0))  RSLT8
+            , SUM(DECODE(R.IND_SEQ, 9, R.RSLT, 0))  RSLT9
+            , SUM(DECODE(R.IND_SEQ, 10, R.RSLT, 0)) RSLT10
+            , SUM(DECODE(R.IND_SEQ, 11, R.RSLT, 0)) RSLT11
+            , SUM(DECODE(R.IND_SEQ, 12, R.RSLT, 0)) RSLT12
+            , SUM(DECODE(R.IND_SEQ, 13, R.RSLT, 0)) RSLT13
+            , SUM(DECODE(R.IND_SEQ, 14, R.RSLT, 0)) RSLT14
+            , SUM(DECODE(R.IND_SEQ, 15, R.RSLT, 0)) RSLT15
+            , SUM(DECODE(R.IND_SEQ, 1, R.RTO, 0))   RTO1
+            , SUM(DECODE(R.IND_SEQ, 2, R.RTO, 0))   RTO2
+            , SUM(DECODE(R.IND_SEQ, 3, R.RTO, 0))   RTO3
+            , SUM(DECODE(R.IND_SEQ, 4, R.RTO, 0))   RTO4
+            , SUM(DECODE(R.IND_SEQ, 5, R.RTO, 0))   RTO5
+            , SUM(DECODE(R.IND_SEQ, 6, R.RTO, 0))   RTO6
+            , SUM(DECODE(R.IND_SEQ, 7, R.RTO, 0))   RTO7
+            , SUM(DECODE(R.IND_SEQ, 8, R.RTO, 0))   RTO8
+            , SUM(DECODE(R.IND_SEQ, 9, R.RTO, 0))   RTO9
+            , SUM(DECODE(R.IND_SEQ, 10, R.RTO, 0))  RTO10
+            , SUM(DECODE(R.IND_SEQ, 11, R.RTO, 0))  RTO11
+            , SUM(DECODE(R.IND_SEQ, 12, R.RTO, 0))  RTO12
+            , SUM(DECODE(R.IND_SEQ, 13, R.RTO, 0))  RTO13
+            , SUM(DECODE(R.IND_SEQ, 14, R.RTO, 0))  RTO14
+            , SUM(DECODE(R.IND_SEQ, 15, R.RTO, 0))  RTO15
+            , SUM(DECODE(R.IND_SEQ, 1, R.RT, 0))    RT1
+            , SUM(DECODE(R.IND_SEQ, 2, R.RT, 0))    RT2
+            , SUM(DECODE(R.IND_SEQ, 3, R.RT, 0))    RT3
+            , SUM(DECODE(R.IND_SEQ, 4, R.RT, 0))    RT4
+            , SUM(DECODE(R.IND_SEQ, 5, R.RT, 0))    RT5
+            , SUM(DECODE(R.IND_SEQ, 6, R.RT, 0))    RT6
+            , SUM(DECODE(R.IND_SEQ, 7, R.RT, 0))    RT7
+            , SUM(DECODE(R.IND_SEQ, 8, R.RT, 0))    RT8
+            , SUM(DECODE(R.IND_SEQ, 9, R.RT, 0))    RT9
+            , SUM(DECODE(R.IND_SEQ, 10, R.RT, 0))   RT10
+            , SUM(DECODE(R.IND_SEQ, 11, R.RT, 0))   RT11
+            , SUM(DECODE(R.IND_SEQ, 12, R.RT, 0))   RT12
+            , SUM(DECODE(R.IND_SEQ, 13, R.RT, 0))   RT13
+            , SUM(DECODE(R.IND_SEQ, 14, R.RT, 0))   RT14
+            , SUM(DECODE(R.IND_SEQ, 15, R.RT, 0))   RT15
+        FROM (
+              SELECT R.IND_CD
+                   , R.IND_SEQ
+                   , R.EMP_NO
+                   , ROUND(R.RSLT, 5)    RSLT
+                   , ROUND(A.HSP_AVG, 5) HSP_AVG
+                   , ROUND(RATIO_TO_REPORT(R.RSLT) OVER(PARTITION BY R.IND_CD)*100, 5) RTO
+                   , ROUND(DECODE(A.HSP_AVG, 0, 0, R.RSLT/A.HSP_AVG)*100, 5)           RT
+                FROM TBL R
+                   , (
+                      SELECT R.IND_CD
+                           , NVL(M.CNT,0) 
+                           , NVL(ROUND(DECODE(SUM_DVS, 'S', DECODE(NVL(M.CNT,0), 0, 0, SUM(R.RAW_RSLT)/NVL(M.CNT,0))
+                                                          , DECODE(SUM(RAW_RSLT_DNMN), 0, 0, SUM(R.RAW_RSLT)/SUM(R.RAW_RSLT_DNMN))), 5), 0)
+                                                          * DECODE(UNIT_TYP, '07', 100, 1) HSP_AVG
+                       FROM TBL R
+                           , (SELECT COUNT(*) CNT
+                                FROM V_EMP_MST
+                               WHERE HSP_CD = #sesHspCd#
+                                 AND OCTY_CD = '1010')  M
+                      <![CDATA[
+                       WHERE (R.RAW_RSLT <> 0 OR UNIT_TYP = '07')
+                      ]]>
+                       GROUP BY R.IND_CD, R.SUM_DVS, R.UNIT_TYP, NVL(M.CNT,0)
+                     ) A
+               WHERE R.IND_CD   = A.IND_CD
+                 AND DECODE(R.SUM_DVS, 'S', R.RAW_RSLT, R.RAW_RSLT_DNMN) > 0
+              ) R
+            , V_EMP_MST E
+        WHERE R.EMP_NO = E.EMP_NO(+)
+        GROUP BY 
+              R.EMP_NO
+            , DECODE(R.EMP_NO,'-','9999999', NVL(R.EMP_NO,'00000'))
+            , DECODE(R.EMP_NO,'-','공통의',NVL(E.EMP_NM,'합  계'))
+        ORDER BY DECODE(R.EMP_NO,'-','9999999', NVL(R.EMP_NO,'00000'))
+    </select>
+
+    <!--
+    설  명 : 지표별 의사실적 비교
+    작성자 : 서단비
+    작성일 : 2015.03.31
+    
+    내  용 : 
+    수정자 : 
+    수정일 : 
+    -->
+    <select id="SelDetail" parameterClass="ComnEnt">
+        <isNotEqual property="pPrdDvsCd" compareValue="M">
+          SELECT PRD_YMD
+               , IND_NM
+               , IND_CD
+               , EMP_NM
+               , EMP_NO
+               , FMT
+               , SUM(TDD_RSLT) AS TDD_RSLT
+               , SORT_SEQ    
+            FROM (
+                  SELECT R.PRD_YMD
+                       , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                       , R.IND_CD
+                       , NVL(E.EMP_NM,'공통의') AS EMP_NM
+                       , DECODE(R.EMP_NO,'-','9999999',R.EMP_NO) AS EMP_NO
+                       , M.FMT
+                       , DECODE(M.SUM_DVS, 'S', SUM(R.TDD_RSLT)
+                                              , DECODE(SUM(R.TDD_RSLT_DNMN), 0, 0, SUM(R.TDD_RSLT)/SUM(R.TDD_RSLT_DNMN)))
+                                                                                      * DECODE(M.UNIT_TYP, '07', 100, 1) TDD_RSLT
+                       , S.SORT_SEQ    
+                    FROM CM_SCRN_IND_LIST S
+                       , CM_IND_MST       M
+                       , PM_IND_RSLT_DD   R
+                       , V_EMP_MST        E
+                       , (SELECT PRD_YM FROM DD_PRD_DD WHERE PRD_YMD = #pPrdYmd#) P
+                   WHERE S.HSP_CD    = #sesHspCd#
+                     AND S.MENU_CD   = #pMenuCd#
+                  <isEqual property="pCond3" compareValue="1">
+                     AND S.SCRN_DOMN = '1'
+                  </isEqual>
+                  <isEqual property="pCond3" compareValue="2">
+                     AND S.SCRN_DOMN = '2'
+                  </isEqual>
+                  <isEqual property="pCond3" compareValue="3">
+                     AND S.SCRN_DOMN = '3'
+                  </isEqual>
+                  <isEqual property="pCond3" compareValue="4">
+                     AND S.SCRN_DOMN = '4'
+                  </isEqual>
+                     AND S.EMP_NO    = 'ADMIN'
+                     AND S.HSP_CD    = R.HSP_CD
+                     AND R.PRD_YMD   = #pPrdYmd#
+                     AND S.IND_CD    = R.IND_CD
+                     AND S.HSP_CD    = M.HSP_CD
+                     AND S.IND_CD    = M.IND_CD
+                     AND R.HSP_CD    = E.HSP_CD(+)
+                     AND R.EMP_NO    = E.EMP_NO(+)
+                  HAVING DECODE(M.SUM_DVS, 'S', SUM(R.TDD_RSLT)
+                                              , DECODE(SUM(R.TDD_RSLT_DNMN), 0, 0, SUM(R.TDD_RSLT)/SUM(R.TDD_RSLT_DNMN)))
+                                                                                      * DECODE(M.UNIT_TYP, '07', 100, 1) <![CDATA[<>]]> 0
+                   GROUP BY
+                         R.PRD_YMD
+                       , R.HSP_CD
+                       , R.IND_CD
+                       , M.IND_NM
+                       , S.SORT_SEQ
+                       , M.SUM_DVS
+                       , M.UNIT_TYP
+                       , R.EMP_NO
+                       , E.EMP_NM
+                       , M.FMT
+                   UNION ALL
+                  SELECT R.PRD_YMD
+                       , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                       , R.IND_CD
+                       , NVL(E.EMP_NM,'공통의') AS EMP_NM
+                       , DECODE(E.EMP_NO,'-','9999999',E.EMP_NO) AS EMP_NO
+                       , M.FMT
+                       , 0 TDD_RSLT  
+                       , S.SORT_SEQ                 
+                    FROM CM_SCRN_IND_LIST S
+                       , CM_IND_MST       M
+                       , PM_IND_RSLT_DD   R
+                       , V_EMP_MST        E
+                       , (SELECT PRD_YM FROM DD_PRD_DD WHERE PRD_YMD = #pPrdYmd#) P
+                   WHERE S.HSP_CD    = #sesHspCd#
+                     AND S.MENU_CD   = #pMenuCd#
+                  <isEqual property="pCond3" compareValue="1">
+                     AND S.SCRN_DOMN = '1'
+                  </isEqual>
+                  <isEqual property="pCond3" compareValue="2">
+                     AND S.SCRN_DOMN = '2'
+                  </isEqual>
+                  <isEqual property="pCond3" compareValue="3">
+                     AND S.SCRN_DOMN = '3'
+                  </isEqual>
+                  <isEqual property="pCond3" compareValue="4">
+                     AND S.SCRN_DOMN = '4'
+                  </isEqual>
+                     AND S.EMP_NO    = 'ADMIN'
+                     AND S.HSP_CD    = R.HSP_CD
+                     AND R.PRD_YMD   = #pPrdYmd#
+                     AND S.IND_CD    = R.IND_CD
+                     AND S.HSP_CD    = M.HSP_CD
+                     AND S.IND_CD    = M.IND_CD
+                     AND E.EMP_NO IN (SELECT DISTINCT D.EMP_NO
+                                        FROM PM_IND_RSLT_DD D
+                                           , CM_SCRN_IND_LIST L 
+                                       WHERE D.IND_CD  = L.IND_CD
+                                         AND L.EMP_NO  = 'ADMIN'
+                                         AND L.MENU_CD = #pMenuCd# 
+                                         AND D.PRD_YMD = #pPrdYmd#  
+                                         AND D.TDD_RSLT <![CDATA[<>]]> 0
+                                      <isEqual property="pCond3" compareValue="1">
+                                         AND L.SCRN_DOMN = '1'
+                                      </isEqual>
+                                      <isEqual property="pCond3" compareValue="2">
+                                         AND L.SCRN_DOMN = '2'
+                                      </isEqual>
+                                      <isEqual property="pCond3" compareValue="3">
+                                         AND L.SCRN_DOMN = '3'
+                                      </isEqual>
+                                      <isEqual property="pCond3" compareValue="4">
+                                         AND L.SCRN_DOMN = '4'
+                                      </isEqual>
+                                     )
+                   GROUP BY
+                         R.PRD_YMD
+                       , R.HSP_CD
+                       , R.IND_CD
+                       , M.IND_NM
+                       , S.SORT_SEQ
+                       , M.SUM_DVS
+                       , M.UNIT_TYP
+                       , E.EMP_NO
+                       , E.EMP_NM
+                       , M.FMT
+                   UNION ALL
+                   SELECT R.PRD_YMD
+                       , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                       , R.IND_CD
+                       , '공통의' AS EMP_NM
+                       , '9999999' AS EMP_NO
+                       , M.FMT
+                       , 0 TDD_RSLT  
+                       , S.SORT_SEQ             
+                    FROM CM_SCRN_IND_LIST S
+                       , CM_IND_MST       M
+                       , PM_IND_RSLT_DD   R
+                       , (SELECT PRD_YM FROM DD_PRD_DD WHERE PRD_YMD = #pPrdYmd#) P
+                   WHERE S.HSP_CD    = #sesHspCd#
+                     AND S.MENU_CD   = #pMenuCd#
+                  <isEqual property="pCond3" compareValue="1">
+                     AND S.SCRN_DOMN = '1'
+                  </isEqual>
+                  <isEqual property="pCond3" compareValue="2">
+                     AND S.SCRN_DOMN = '2'
+                  </isEqual>
+                  <isEqual property="pCond3" compareValue="3">
+                     AND S.SCRN_DOMN = '3'
+                  </isEqual>
+                  <isEqual property="pCond3" compareValue="4">
+                     AND S.SCRN_DOMN = '4'
+                  </isEqual>
+                     AND S.EMP_NO    = 'ADMIN'
+                     AND S.HSP_CD    = R.HSP_CD
+                     AND R.PRD_YMD   = #pPrdYmd#
+                     AND S.IND_CD    = R.IND_CD
+                     AND S.HSP_CD    = M.HSP_CD
+                     AND S.IND_CD    = M.IND_CD
+                   GROUP BY
+                         R.PRD_YMD
+                       , R.HSP_CD
+                       , R.IND_CD
+                       , M.IND_NM
+                       , S.SORT_SEQ
+                       , M.SUM_DVS
+                       , M.UNIT_TYP
+                       , M.FMT
+                  )
+              GROUP BY PRD_YMD, IND_CD, IND_NM, EMP_NM, EMP_NO, FMT, SORT_SEQ
+              ORDER BY EMP_NO, SORT_SEQ
+        </isNotEqual>
+        <isEqual property="pPrdDvsCd" compareValue="M">
+
+            SELECT PRD_YM
+                , IND_NM
+                , IND_CD
+                , EMP_NM
+                , EMP_NO
+                , FMT
+                , SUM(TMM_RSLT)
+                , SORT_SEQ 
+              FROM (
+                  SELECT R.PRD_YM
+                        , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                        , R.IND_CD
+                        , NVL(E.EMP_NM,'공통의') AS EMP_NM
+                        , DECODE(R.EMP_NO,'-','9999999',R.EMP_NO) AS EMP_NO
+                        , M.FMT
+                        , DECODE(M.SUM_DVS, 'S', SUM(R.TMM_RSLT)
+                                              , DECODE(SUM(R.TMM_RSLT_DNMN), 0, 0, SUM(R.TMM_RSLT)/SUM(R.TMM_RSLT_DNMN)))
+                                                                                      * DECODE(M.UNIT_TYP, '07', 100, 1) TMM_RSLT
+                        , S.SORT_SEQ
+                    FROM CM_SCRN_IND_LIST S
+                        , CM_IND_MST       M
+                        , PM_IND_RSLT_MM   R
+                        , V_EMP_MST        E
+                    WHERE S.HSP_CD    = #sesHspCd#
+                      AND S.MENU_CD   = #pMenuCd#
+                    <isEqual property="pCond3" compareValue="1">
+                      AND S.SCRN_DOMN = '1'
+                    </isEqual>
+                    <isEqual property="pCond3" compareValue="2">
+                      AND S.SCRN_DOMN = '2'
+                    </isEqual>
+                    <isEqual property="pCond3" compareValue="3">
+                      AND S.SCRN_DOMN = '3'
+                    </isEqual>
+                    <isEqual property="pCond3" compareValue="4">
+                      AND S.SCRN_DOMN = '4'
+                    </isEqual>
+                      AND S.EMP_NO    = 'ADMIN'
+                      AND S.HSP_CD    = R.HSP_CD
+                      AND R.PRD_YM    = #pPrdYm#
+                      AND S.IND_CD    = R.IND_CD
+                      AND S.HSP_CD    = M.HSP_CD
+                      AND S.IND_CD    = M.IND_CD
+                      AND R.HSP_CD    = E.HSP_CD(+)
+                      AND R.EMP_NO    = E.EMP_NO(+)
+                   HAVING DECODE(M.SUM_DVS, 'S', SUM(R.TMM_RSLT)
+                                          , DECODE(SUM(R.TMM_RSLT_DNMN), 0, 0, SUM(R.TMM_RSLT)/SUM(R.TMM_RSLT_DNMN)))
+                                                                                * DECODE(M.UNIT_TYP, '07', 100, 1) <![CDATA[<>]]> 0
+                    GROUP BY
+                          R.PRD_YM
+                        , R.HSP_CD
+                        , R.IND_CD
+                        , M.IND_NM
+                        , S.SORT_SEQ
+                        , M.SUM_DVS
+                        , M.UNIT_TYP
+                        , R.EMP_NO
+                        , E.EMP_NM
+                        , M.FMT                 
+                    UNION ALL
+                   SELECT R.PRD_YM
+                        , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                        , R.IND_CD
+                        , NVL(E.EMP_NM,'공통의') AS EMP_NM
+                        , DECODE(E.EMP_NO,'-','9999999',E.EMP_NO) AS EMP_NO
+                        , M.FMT
+                        , 0  TMM_RSLT
+                        , S.SORT_SEQ
+                     FROM CM_SCRN_IND_LIST S
+                        , CM_IND_MST       M
+                        , PM_IND_RSLT_MM   R
+                        , V_EMP_MST        E
+                    WHERE S.HSP_CD    = #sesHspCd#
+                      AND S.MENU_CD   = #pMenuCd#
+                    <isEqual property="pCond3" compareValue="1">
+                      AND S.SCRN_DOMN = '1'
+                    </isEqual>
+                    <isEqual property="pCond3" compareValue="2">
+                      AND S.SCRN_DOMN = '2'
+                    </isEqual>
+                    <isEqual property="pCond3" compareValue="3">
+                      AND S.SCRN_DOMN = '3'
+                    </isEqual>
+                    <isEqual property="pCond3" compareValue="4">
+                      AND S.SCRN_DOMN = '4'
+                    </isEqual>
+                      AND S.EMP_NO    = 'ADMIN'
+                      AND S.HSP_CD    = R.HSP_CD
+                      AND R.PRD_YM    = #pPrdYm#
+                      AND S.IND_CD    = R.IND_CD
+                      AND S.HSP_CD    = M.HSP_CD
+                      AND S.IND_CD    = M.IND_CD
+                      AND E.EMP_NO IN (SELECT DISTINCT M.EMP_NO
+                                        FROM PM_IND_RSLT_MM M
+                                            , CM_SCRN_IND_LIST L 
+                                        WHERE M.IND_CD  = L.IND_CD
+                                          AND L.EMP_NO  = 'ADMIN'
+                                          AND L.MENU_CD = #pMenuCd#
+                                          AND M.PRD_YM  = #pPrdYm# 
+                                          AND M.TMM_RSLT <![CDATA[<>]]> 0
+                                        <isEqual property="pCond3" compareValue="1">
+                                          AND L.SCRN_DOMN = '1'
+                                        </isEqual>
+                                        <isEqual property="pCond3" compareValue="2">
+                                          AND L.SCRN_DOMN = '2'
+                                        </isEqual>
+                                        <isEqual property="pCond3" compareValue="3">
+                                          AND L.SCRN_DOMN = '3'
+                                        </isEqual>
+                                        <isEqual property="pCond3" compareValue="4">
+                                          AND L.SCRN_DOMN = '4'
+                                        </isEqual>
+                                    )
+                    GROUP BY
+                          R.PRD_YM
+                        , R.HSP_CD
+                        , R.IND_CD
+                        , M.IND_NM
+                        , S.SORT_SEQ
+                        , M.SUM_DVS
+                        , M.UNIT_TYP
+                        , E.EMP_NO
+                        , E.EMP_NM
+                        , M.FMT
+                    UNION ALL
+                  SELECT R.PRD_YM
+                        , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                        , R.IND_CD
+                        , '공통의'     AS EMP_NM
+                        , '9999999'    AS EMP_NO
+                        , M.FMT
+                        , 0 TMM_RSLT
+                        , S.SORT_SEQ
+                    FROM CM_SCRN_IND_LIST S
+                        , CM_IND_MST       M
+                        , PM_IND_RSLT_MM   R
+                    WHERE S.HSP_CD    = #sesHspCd#
+                      AND S.MENU_CD   = #pMenuCd#
+                      <isEqual property="pCond3" compareValue="1">
+                        AND S.SCRN_DOMN = '1'
+                      </isEqual>
+                      <isEqual property="pCond3" compareValue="2">
+                        AND S.SCRN_DOMN = '2'
+                      </isEqual>
+                      <isEqual property="pCond3" compareValue="3">
+                        AND S.SCRN_DOMN = '3'
+                      </isEqual>
+                      <isEqual property="pCond3" compareValue="4">
+                        AND S.SCRN_DOMN = '4'
+                      </isEqual>
+                      AND S.EMP_NO    = 'ADMIN'
+                      AND S.HSP_CD    = R.HSP_CD
+                      AND R.PRD_YM    = #pPrdYm#
+                      AND S.IND_CD    = R.IND_CD
+                      AND S.HSP_CD    = M.HSP_CD
+                      AND S.IND_CD    = M.IND_CD
+                    GROUP BY
+                          R.PRD_YM
+                        , R.HSP_CD
+                        , R.IND_CD
+                        , M.IND_NM
+                        , S.SORT_SEQ
+                        , M.SUM_DVS
+                        , M.UNIT_TYP
+                        , M.FMT
+                  )
+              GROUP BY PRD_YM, IND_NM, IND_CD, EMP_NM, EMP_NO, FMT, SORT_SEQ
+              ORDER BY EMP_NO, SORT_SEQ
+        </isEqual>
+    </select>
+
+ <!--
+    설  명 : 지표 실적 추세 목록(의사별)
+    작성자 : 서단비
+    작성일 : 2015.06.29
+    
+    내  용 : 
+    수정자 : 
+    수정일 : 
+    -->
+    <select id="SelIndPscdList" parameterClass="ComnEnt">
+      <isNotEqual property="pPrdDvsCd" compareValue="M">
+          SELECT DT.PRD_YMD
+               , SUBSTR(DT.PRD_YMD, 5, 2)||'<![CDATA[<br />]]>'||SUBSTR(DT.PRD_YMD, 7, 2) AS PRD
+               , NVL(ROUND(R.TDD_RSLT, 5), 0) RSLT
+               , NVL(ROUND(R.LYY_RSLT, 5), 0) RSLT1
+               , NVL(ROUND(R.TYY_RSLT, 5), 0) RSLT2
+               , NVL(ROUND(DECODE(DT.PRD_YMD, #pPrdYmd#, R.TYY_RSLT, 0), 5), 0) AVG_RSLT
+               , R.UNIT_TYP
+               , R.FMT
+            FROM (
+                  SELECT R.PRD_YMD
+                       , DECODE(M.SUM_DVS, 'S', SUM(R.TDD_RSLT)
+                                              , DECODE(SUM(R.TDD_RSLT_DNMN), 0, 0, SUM(R.TDD_RSLT)/SUM(R.TDD_RSLT_DNMN)))
+                        *DECODE(M.UNIT_TYP, '07', 100, 1) TDD_RSLT
+                       , DECODE(M.SUM_DVS, 'S', SUM(R.LYY_DOW_AVG_RSLT)
+                                              , DECODE(SUM(R.LYY_DOW_AVG_RSLT_DNMN), 0, 0, SUM(R.LYY_DOW_AVG_RSLT)/SUM(R.LYY_DOW_AVG_RSLT_DNMN)))
+                        *DECODE(M.UNIT_TYP, '07', 100, 1) LYY_RSLT
+                       , DECODE(M.SUM_DVS, 'S', SUM(R.TYY_DOW_AVG_RSLT)
+                                              , DECODE(SUM(R.TYY_DOW_AVG_RSLT_DNMN), 0, 0, SUM(R.TYY_DOW_AVG_RSLT)/SUM(R.TYY_DOW_AVG_RSLT_DNMN)))
+                        *DECODE(M.UNIT_TYP, '07', 100, 1) TYY_RSLT
+                       , C.COMN_NM UNIT_TYP
+                       , M.FMT
+                    FROM PM_IND_RSLT_DD R
+                       , CM_IND_MST     M
+                       , CM_COMN_CD     C
+                     <isEqual property="sesGrpCls" compareValue="D">
+                       , CM_UNIT_DEPT   U
+                     </isEqual>
+                   WHERE R.PRD_YMD BETWEEN (SELECT PRD_YMD                                                       
+                                              FROM DD_PRD_DD                                                        
+                                             WHERE PRD_YMD = (SELECT TO_CHAR(ADD_MONTHS(TO_DATE(PRD_YMD, 'YYYYMMDD'), -1), 'YYYYMMDD')
+                                                                FROM DD_PRD_DD                
+                                                               WHERE PRD_YMD = #pPrdYmd#)                    
+                                           )
+                                    AND #pPrdYmd#
+                     AND R.HSP_CD    = #sesHspCd#
+                     AND R.IND_CD    = #pIndCd#
+                   <isNotEmpty property="pEmpNo">
+                     AND R.EMP_NO    = #pEmpNo#
+                   </isNotEmpty>
+                   <isEmpty property="pEmpNo">
+                     <isEqual property="sesGrpCls" compareValue="E">
+                       AND R.EMP_NO  = #sesEmpNo#
+                     </isEqual>
+                   </isEmpty>
+                     AND R.HSP_CD    = M.HSP_CD
+                     AND R.IND_CD    = M.IND_CD
+                     AND C.DVS_CD    = 'KP004'
+                     AND M.HSP_CD    = C.HSP_CD
+                     AND M.UNIT_TYP = C.COMN_CD
+                   <isEqual property="sesGrpCls" compareValue="D">
+                     AND R.HSP_CD    = U.HSP_CD
+                     AND R.DEPT_CD   = U.DEPT_CD
+                     AND U.PRD_YM    = SUBSTR(#pPrdYmd#, 1, 6)
+                     AND U.UNIT_CD   = #sesUnitCd#
+                    </isEqual>
+                   GROUP BY
+                         R.PRD_YMD
+                       , M.SUM_DVS
+                       , M.UNIT_TYP
+                       , C.COMN_NM
+                       , M.FMT
+                 ) R
+               , (SELECT PRD_YMD                              
+                    FROM DD_PRD_DD                                                              
+                   WHERE PRD_YMD BETWEEN (SELECT PRD_YMD                                                       
+                                              FROM DD_PRD_DD                                                        
+                                             WHERE PRD_YMD = (SELECT TO_CHAR(ADD_MONTHS(TO_DATE(PRD_YMD, 'YYYYMMDD'), -1), 'YYYYMMDD')
+                                                                FROM DD_PRD_DD                
+                                                               WHERE PRD_YMD = #pPrdYmd#)                    
+                                           )
+                                 AND #pPrdYmd#
+                    AND WRK_DYS <![CDATA[<>]]> '0'
+                 ) DT
+           WHERE DT.PRD_YMD = R.PRD_YMD(+)
+           ORDER BY PRD_YMD
+      </isNotEqual>
+      <isEqual property="pPrdDvsCd" compareValue="M">
+          SELECT MM.PRD_YM
+               , SUBSTR(MM.PRD_YM, 3, 2)||'.'||SUBSTR(MM.PRD_YM, 5, 2) PRD
+               , NVL(ROUND(R.TMM_RSLT, 5), 0) RSLT
+               , NVL(ROUND(R.LYY_RSLT, 5), 0) RSLT1
+               , NVL(ROUND(R.LMM_RSLT, 5), 0) RSLT2
+               , NVL(ROUND(DECODE(MM.PRD_YM, #pPrdYm#, R.AVG_RSLT, 0), 5), 0) AVG_RSLT
+               , R.UNIT_TYP
+               , R.FMT
+            FROM (
+                  SELECT R.PRD_YM
+                       , DECODE(M.SUM_DVS, 'S', SUM(R.TMM_RSLT)
+                                              , DECODE(SUM(R.TMM_RSLT_DNMN), 0, 0, SUM(R.TMM_RSLT)/SUM(R.TMM_RSLT_DNMN)))
+                        *DECODE(M.UNIT_TYP, '07', 100, 1) TMM_RSLT
+                       , DECODE(M.SUM_DVS, 'S', SUM(R.LYY_TMM_RSLT)
+                                              , DECODE(SUM(R.LYY_TMM_RSLT_DNMN), 0, 0, SUM(R.LYY_TMM_RSLT)/SUM(R.LYY_TMM_RSLT_DNMN)))
+                        *DECODE(M.UNIT_TYP, '07', 100, 1) LYY_RSLT
+                       , DECODE(M.SUM_DVS, 'S', SUM(R.LMM_RSLT)
+                                              , DECODE(SUM(R.LMM_RSLT_DNMN), 0, 0, SUM(R.LMM_RSLT)/SUM(R.LMM_RSLT_DNMN)))
+                        *DECODE(M.UNIT_TYP, '07', 100, 1) LMM_RSLT
+                       , DECODE(M.SUM_DVS, 'S', SUM(R.TYY_MM_AVG_RSLT)
+                                              , DECODE(SUM(R.TYY_MM_AVG_RSLT_DNMN), 0, 0, SUM(R.TYY_MM_AVG_RSLT)/SUM(R.TYY_MM_AVG_RSLT_DNMN)))
+                        *DECODE(M.UNIT_TYP, '07', 100, 1) AVG_RSLT
+                       , C.COMN_NM UNIT_TYP
+                       , M.FMT
+                    FROM PM_IND_RSLT_MM R
+                       , CM_IND_MST     M
+                       , CM_COMN_CD     C
+                      <isEqual property="sesGrpCls" compareValue="D">
+                       , CM_UNIT_DEPT   U
+                      </isEqual>
+                   WHERE R.HSP_CD    = #sesHspCd#
+                     AND R.PRD_YM    BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(#pPrdYm#, 'YYYYMM'), -11), 'YYYYMM') AND #pPrdYm#
+                     AND R.IND_CD    = #pIndCd#
+                     AND R.HSP_CD    = M.HSP_CD
+                     AND R.IND_CD    = M.IND_CD
+                     AND C.DVS_CD    = 'KP004'
+                     AND M.HSP_CD    = C.HSP_CD
+                     AND M.UNIT_TYP = C.COMN_CD
+                   <isEqual property="sesGrpCls" compareValue="D">
+                     AND R.HSP_CD  = U.HSP_CD
+                     AND R.DEPT_CD = U.DEPT_CD
+                     AND R.PRD_YM  = U.PRD_YM
+                     AND U.UNIT_CD = #sesUnitCd#
+                   </isEqual>
+                   <isNotEmpty property="pEmpNo">
+                     AND R.EMP_NO = #pEmpNo#
+                   </isNotEmpty>
+                   <isEmpty property="pEmpNo">
+                     <isEqual property="sesGrpCls" compareValue="E">
+                       AND R.EMP_NO  = #sesEmpNo#
+                     </isEqual>
+                   </isEmpty>
+                   GROUP BY
+                         R.PRD_YM
+                       , M.SUM_DVS
+                       , M.UNIT_TYP
+                       , C.COMN_NM
+                       , M.FMT
+                 ) R
+               , DD_PRD_MM MM
+           WHERE MM.PRD_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(#pPrdYm#, 'YYYYMM'), -11), 'YYYYMM') AND #pPrdYm#
+             AND MM.PRD_YM = R.PRD_YM(+)
+           ORDER BY PRD_YM
+      </isEqual>
+    </select>
+
+
+
+
+
+<!--
+    설  명 : 병원평균, 개인 실적 추세(일요일 제외)
+    작성자 : 서단비
+    작성일 : 2015.08.05
+    
+    내  용 : 
+    수정자 : 
+    수정일 : 
+    -->
+    <select id="SelIndEmpWithAvgPscdList" parameterClass="ComnEnt">
+      <isEqual property="pPrdDvsCd" compareValue="D">
+          WITH TBL AS (
+                      SELECT R.PRD_YMD
+                            , R.HSP_CD
+                            , R.DEPT_CD
+                            , R.EMP_NO
+                            , M.SUM_DVS
+                            , M.CALC_TYP
+                            , M.UNIT_TYP
+                            , C.COMN_NM   UNIT_TYP_NM
+                            , SUM(R.TDD_RSLT)      TDD_RSLT
+                            , SUM(R.TDD_RSLT_DNMN) TDD_RSLT_DNMN
+                        FROM PM_IND_RSLT_DD   R
+                            , CM_IND_MST       M
+                            , CM_COMN_CD       C
+                        WHERE R.PRD_YMD      BETWEEN (SELECT PRD_YMD                                                       
+                                                      FROM DD_PRD_DD                                                        
+                                                      WHERE PRD_YMD = (SELECT TO_CHAR(ADD_MONTHS(TO_DATE(PRD_YMD, 'YYYYMMDD'), -1), 'YYYYMMDD')
+                                                                        FROM DD_PRD_DD                
+                                                                        WHERE PRD_YMD = #pPrdYmd#)                    
+                                                    )
+                                                AND #pPrdYmd#
+                          AND R.HSP_CD    = #sesHspCd#
+                          AND R.IND_CD    = #pIndCd#
+                          AND R.HSP_CD    = M.HSP_CD
+                          AND R.IND_CD    = M.IND_CD
+                          AND C.DVS_CD    = 'KP004'
+                          AND M.HSP_CD    = C.HSP_CD
+                          AND M.UNIT_TYP  = C.COMN_CD
+                        GROUP BY
+                              R.PRD_YMD
+                            , R.HSP_CD
+                            , R.DEPT_CD
+                            , R.EMP_NO
+                            , M.SUM_DVS
+                            , M.CALC_TYP
+                            , M.UNIT_TYP
+                            , C.COMN_NM
+                  ), TBL_AVG AS (
+                      SELECT R.PRD_YMD
+                            , R.HSP_CD
+                            , R.DEPT_CD
+                            , SUBSTR(R.PRD_YMD,1,6) AS PRD_YM
+                            , R.SUM_DVS
+                            , R.CALC_TYP
+                            , R.UNIT_TYP
+                            , R.UNIT_TYP_NM
+                            , R.TDD_RSLT
+                            , R.TDD_RSLT_DNMN
+                        FROM TBL              R
+                  )
+                  SELECT DD.PRD_YMD
+                        , DD.PRD_YMD_NM PRD
+                        , NVL(ROUND(R.HSP_AVG, 5), 0)  HSP_AVG
+                        , NVL(ROUND(R.RSLT, 5), 0)     RSLT
+                        , R.UNIT_TYP
+                    FROM (
+                          SELECT R.PRD_YMD
+                                , R.UNIT_TYP_NM UNIT_TYP
+                                , R.RSLT
+                                , H.HSP_AVG
+                            FROM (
+                                  SELECT R.PRD_YMD
+                                        , R.UNIT_TYP_NM
+                                        , DECODE(R.SUM_DVS, 'S', R.TDD_RSLT
+                                                              , DECODE(R.TDD_RSLT_DNMN, 0, 0, R.TDD_RSLT/R.TDD_RSLT_DNMN))
+                                                                                                * DECODE(R.UNIT_TYP, '07', 100, 1) RSLT
+                                    FROM TBL          R
+                                    WHERE R.EMP_NO  = #pEmpNo#
+                                  ) R
+                                , (
+                                  SELECT R.PRD_YMD
+                                        , NVL(M.CNT,0)
+                                        , NVL(ROUND(DECODE(SUM_DVS, 'S', DECODE(NVL(M.CNT,0), 0, 0, SUM(R.TDD_RSLT)/NVL(M.CNT,0))
+                                                                      , DECODE(SUM(TDD_RSLT_DNMN), 0, 0, SUM(R.TDD_RSLT)/SUM(R.TDD_RSLT_DNMN))), 5), 0)
+                                                                      * DECODE(UNIT_TYP, '07', 100, 1) HSP_AVG
+                                    FROM TBL_AVG            R
+                                        , (SELECT COUNT(*) CNT
+                                            FROM V_EMP_MST
+                                            WHERE HSP_CD = #sesHspCd#
+                                              AND OCTY_CD = '1010')  M
+                                    WHERE 1=1
+                                    <![CDATA[
+                                      AND (R.TDD_RSLT <> 0 OR UNIT_TYP = '07')
+                                    ]]>
+                                    GROUP BY R.PRD_YMD, R.SUM_DVS, R.UNIT_TYP, NVL(M.CNT,0)
+                                  ) H
+                            WHERE R.PRD_YMD = H.PRD_YMD
+                          ) R
+                        , (SELECT PRD_YMD
+                                , SUBSTR(PRD_YMD,7,2) PRD_YMD_NM                                     
+                            FROM DD_PRD_DD                                                               
+                            WHERE PRD_YMD BETWEEN (SELECT PRD_YMD                                                        
+                                                    FROM DD_PRD_DD                                                        
+                                                  WHERE PRD_YMD = (SELECT TO_CHAR(ADD_MONTHS(TO_DATE(PRD_YMD, 'YYYYMMDD'), -1), 'YYYYMMDD')
+                                                                      FROM DD_PRD_DD                
+                                                                    WHERE PRD_YMD = #pPrdYmd#)                    
+                                                )
+                                            AND #pPrdYmd#
+                            AND DOW <![CDATA[ <> ]]> '7'
+                          ) DD
+                    WHERE DD.PRD_YMD = R.PRD_YMD(+)
+                    ORDER BY PRD_YMD
+              </isEqual>
+              <isEqual property="pPrdDvsCd" compareValue="W">
+                  WITH TBL AS (
+                      SELECT R.PRD_YW
+                            , R.HSP_CD
+                            , R.DEPT_CD
+                            , R.EMP_NO
+                            , M.SUM_DVS
+                            , M.CALC_TYP
+                            , M.UNIT_TYP
+                            , C.COMN_NM   UNIT_TYP_NM
+                            , SUM(R.TWK_RSLT)      TWK_RSLT
+                            , SUM(R.TWK_RSLT_DNMN) TWK_RSLT_DNMN
+                        FROM PM_IND_RSLT_WK   R
+                            , CM_IND_MST       M
+                            , CM_COMN_CD       C
+                        WHERE R.PRD_YW      BETWEEN (SELECT PRD_YW                                                        
+                                                      FROM DD_PRD_DD                                                        
+                                                      WHERE PRD_YMD = (SELECT TO_CHAR(ADD_MONTHS(TO_DATE(WK_END_DT, 'YYYYMMDD'), -3), 'YYYYMMDD')
+                                                                        FROM DD_PRD_WK                
+                                                                        WHERE PRD_YW = #pPrdYw#)                    
+                                                    )
+                                                AND #pPrdYw#
+                          AND R.HSP_CD    = #sesHspCd#
+                          AND R.IND_CD    = #pIndCd#
+                          AND R.HSP_CD    = M.HSP_CD
+                          AND R.IND_CD    = M.IND_CD
+                          AND C.DVS_CD    = 'KP004'
+                          AND M.HSP_CD    = C.HSP_CD
+                          AND M.UNIT_TYP = C.COMN_CD
+                        GROUP BY
+                              R.PRD_YW
+                            , R.HSP_CD
+                            , R.DEPT_CD
+                            , R.EMP_NO
+                            , M.SUM_DVS
+                            , M.CALC_TYP
+                            , M.UNIT_TYP
+                            , C.COMN_NM
+                  ), TBL_AVG AS (
+                      SELECT R.PRD_YW
+                            , R.HSP_CD
+                            , R.DEPT_CD
+                            , SUBSTR(R.PRD_YMD,1,6) AS PRD_YM
+                            , R.SUM_DVS
+                            , R.CALC_TYP
+                            , R.UNIT_TYP
+                            , R.UNIT_TYP_NM
+                            , R.TWK_RSLT
+                            , R.TWK_RSLT_DNMN
+                        FROM TBL              R
+                  )
+                  SELECT WK.PRD_YW
+                        , WK.PRD_YW_NM PRD
+                        , NVL(ROUND(R.HSP_AVG, 5), 0)  HSP_AVG
+                        , NVL(ROUND(R.RSLT, 5), 0)     RSLT
+                        , R.UNIT_TYP
+                    FROM (
+                          SELECT R.PRD_YW
+                                , R.UNIT_TYP_NM UNIT_TYP
+                                , R.RSLT
+                                , H.HSP_AVG
+                            FROM (
+                                  SELECT R.PRD_YW
+                                        , R.UNIT_TYP_NM
+                                        , DECODE(R.SUM_DVS, 'S', R.TWK_RSLT
+                                                              , DECODE(R.TWK_RSLT_DNMN, 0, 0, R.TWK_RSLT/R.TWK_RSLT_DNMN))
+                                                                                                * DECODE(R.UNIT_TYP, '07', 100, 1) RSLT
+                                    FROM TBL          R
+                                    WHERE R.EMP_NO  = #pEmpNo#
+                                  ) R
+                                , (
+                                  SELECT R.PRD_YMD
+                                        , NVL(M.CNT,0) 
+                                        , NVL(ROUND(DECODE(SUM_DVS, 'S', DECODE(NVL(M.CNT,0), 0, 0, SUM(R.TDD_RSLT)/NVL(M.CNT,0))
+                                                                      , DECODE(SUM(TDD_RSLT_DNMN), 0, 0, SUM(R.TDD_RSLT)/SUM(R.TDD_RSLT_DNMN))), 5), 0)
+                                                                      * DECODE(UNIT_TYP, '07', 100, 1) HSP_AVG
+                                    FROM TBL_AVG            R
+                                        , (SELECT COUNT(*) CNT
+                                            FROM V_EMP_MST
+                                            WHERE HSP_CD = #sesHspCd#
+                                              AND OCTY_CD = '1010')  M
+                                    WHERE 1=1
+                                    <![CDATA[
+                                      AND (R.TWK_RSLT <> 0 OR UNIT_TYP = '07')
+                                    ]]>
+                                    GROUP BY R.PRD_YW, R.SUM_DVS, R.UNIT_TYP, NVL(M.CNT,0)
+                                  ) H
+                            WHERE R.PRD_YW = H.PRD_YW
+                          ) R
+                        , (SELECT PRD_YW, PRD_YW_NM_2 PRD_YW_NM                                        
+                            FROM DD_PRD_WK                                                               
+                            WHERE PRD_YW BETWEEN (SELECT PRD_YW                                                        
+                                                    FROM DD_PRD_DD                                                        
+                                                  WHERE PRD_YMD = (SELECT TO_CHAR(ADD_MONTHS(TO_DATE(WK_END_DT, 'YYYYMMDD'), -3), 'YYYYMMDD')
+                                                                      FROM DD_PRD_WK                
+                                                                    WHERE PRD_YW = #pPrdYw#)                    
+                                                )
+                                            AND #pPrdYw#
+                          ) WK
+                    WHERE WK.PRD_YW = R.PRD_YW(+)
+                    ORDER BY PRD_YW
+      </isEqual>
+      <isEqual property="pPrdDvsCd" compareValue="M">
+          WITH TBL AS (
+              SELECT R.PRD_YM
+                   , R.HSP_CD
+                   , R.DEPT_CD
+                   , R.EMP_NO
+                   , M.SUM_DVS
+                   , M.CALC_TYP
+                   , M.UNIT_TYP
+                   , C.COMN_NM   UNIT_TYP_NM
+                   , SUM(R.TMM_RSLT)      TMM_RSLT
+                   , SUM(R.TMM_RSLT_DNMN) TMM_RSLT_DNMN
+                FROM PM_IND_RSLT_MM   R
+                   , CM_IND_MST       M
+                   , CM_COMN_CD       C
+                   , DD_PRD_MM        MM
+               WHERE R.HSP_CD    = #sesHspCd#
+                 AND MM.PRD_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(#pPrdYm#, 'YYYYMM'), -11), 'YYYYMM') AND #pPrdYm#
+                 AND R.PRD_YM    = MM.PRD_YM
+                 AND R.IND_CD    = #pIndCd#
+                 AND R.HSP_CD    = M.HSP_CD
+                 AND R.IND_CD    = M.IND_CD
+                 AND C.DVS_CD    = 'KP004'
+                 AND M.HSP_CD    = C.HSP_CD
+                 AND M.UNIT_TYP = C.COMN_CD
+               GROUP BY
+                     R.PRD_YM
+                   , R.HSP_CD
+                   , R.IND_CD
+                   , M.SUM_DVS
+                   , M.CALC_TYP
+                   , M.UNIT_TYP
+                   , C.COMN_NM
+                   , R.DEPT_CD
+                   , R.EMP_NO
+          ), TBL_AVG AS (
+              SELECT R.PRD_YM
+                   , R.HSP_CD
+                   , R.EMP_NO
+                   , R.DEPT_CD
+                   , R.SUM_DVS
+                   , R.CALC_TYP
+                   , R.UNIT_TYP
+                   , R.UNIT_TYP_NM
+                   , R.TMM_RSLT
+                   , R.TMM_RSLT_DNMN
+                FROM TBL        R
+          )
+          SELECT MM.PRD_YM
+               , SUBSTR(MM.PRD_YM, 3, 2)||'.'||SUBSTR(MM.PRD_YM, 5, 2) PRD
+               , NVL(ROUND(R.HSP_AVG, 5), 0)  HSP_AVG
+               , NVL(ROUND(R.RSLT, 5), 0)     RSLT
+               , R.UNIT_TYP
+            FROM (
+                  SELECT R.PRD_YM
+                       , R.UNIT_TYP_NM UNIT_TYP
+                       , R.RSLT
+                       , H.HSP_AVG
+                    FROM (
+                          SELECT R.PRD_YM
+                               , R.UNIT_TYP_NM
+                               , DECODE(R.SUM_DVS, 'S', R.TMM_RSLT
+                                                      , DECODE(R.TMM_RSLT_DNMN, 0, 0, R.TMM_RSLT/R.TMM_RSLT_DNMN))
+                                                                                        * DECODE(R.UNIT_TYP, '07', 100, 1) RSLT
+                            FROM TBL R
+                           WHERE R.EMP_NO  = #pEmpNo#
+                         ) R
+                       , (
+                          SELECT R.PRD_YM
+                               , NVL(M.CNT,0)
+                               , NVL(ROUND(DECODE(SUM_DVS, 'S', DECODE(NVL(M.CNT,0), 0, 0, SUM(R.TMM_RSLT)/NVL(M.CNT,0))
+                                                              , DECODE(SUM(TMM_RSLT_DNMN), 0, 0, SUM(R.TMM_RSLT)/SUM(R.TMM_RSLT_DNMN))), 5), 0)
+                                                              * DECODE(UNIT_TYP, '07', 100, 1) HSP_AVG
+                            FROM TBL_AVG            R
+                               , (SELECT COUNT(*) CNT
+                                    FROM V_EMP_MST
+                                   WHERE HSP_CD = #sesHspCd#
+                                     AND OCTY_CD = '1010')  M
+                            WHERE 1=1
+                           <![CDATA[
+                             AND (R.TMM_RSLT <> 0 OR UNIT_TYP = '07')
+                           ]]> 
+                           GROUP BY R.PRD_YM, R.SUM_DVS, R.UNIT_TYP, NVL(M.CNT,0)
+                         ) H
+                   WHERE R.PRD_YM = H.PRD_YM
+                 ) R
+               , DD_PRD_MM MM
+           WHERE MM.PRD_YM BETWEEN TO_CHAR(ADD_MONTHS(TO_DATE(#pPrdYm#, 'YYYYMM'), -11), 'YYYYMM') AND #pPrdYm#
+             AND MM.PRD_YM = R.PRD_YM(+)
+           ORDER BY PRD_YM
+      </isEqual>
+    </select>
+
+  </statements>
+
+</sqlMap>

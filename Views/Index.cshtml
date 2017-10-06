@@ -1,0 +1,401 @@
+﻿@{
+    ViewBag.Title = "개인별 현황";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //조회구분
+    System.Collections.Hashtable hashSrchDvs = new System.Collections.Hashtable();
+    hashSrchDvs.Add(1, new hash() { name = "진료성형수익", value = "1" });
+    hashSrchDvs.Add(2, new hash() { name = "진료피부수익", value = "2" });
+    hashSrchDvs.Add(3, new hash() { name = "수가성형수익", value = "3" });
+    hashSrchDvs.Add(4, new hash() { name = "수가피부수익", value = "4" });
+    
+    ComnEnt ent = ViewBag.ent;
+
+    ViewBag.Title = ent.pPrdDvsCd == "M" ? "월간시술별실적" : "일간시술별실적";
+
+    string strPrdDvsCd = ent.pPrdDvsCd.ToString();
+    string strMenuCd = ent.pMenuCd.ToString();
+    DataTable dtHeader = ViewBag.dtHeader;
+    DataTable dt = ViewBag.dt;
+    int intIndCnt = dtHeader.Rows.Count;
+        intIndCnt = intIndCnt > 15 ? 15 : intIndCnt;
+     int intRowCnt = 0;
+
+    int intHeaderWidth = intIndCnt == 0 ? 0 : (int)(1130 / intIndCnt);
+    int intWidth1 = (int)(intHeaderWidth * 0.44);
+    int intWidth2 = intHeaderWidth - intWidth1;
+
+}
+
+@section Header {
+    <style type="text/css">
+        .contents table { table-layout:fixed }
+       /* #divEmpList { height:247px; position:relative }*/
+        #divEmpList { height:203px; position:relative }
+        #divEmpList p { line-height:160px; text-align:center }
+        .sel_box { display:none; position:absolute; z-index:100; border:1px solid #00b3e3 }
+        .ind_box { top:0; height:240px; margin-top:0px }
+        .emp_box { left:0; width:100%; height:40px }
+        #divLeft, #divRight { margin-top:20px }
+        #divRtoList p { line-height:184px; text-align:center }
+        .legend{margin-top:4px;}
+        #chart_1{ height:230px }
+        #tblEmpList tbody tr:first-child{background-color:#fdeada !important;}
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            fncTableRowspan();
+            fncChart();
+            $("#tblEmpListHeader thead th:eq(1)").trigger("click");
+            $("#tblEmpList tbody tr:first-child").find("td").eq(0).css("cursor","default");
+        });
+
+        function fncChart() {
+
+            $.ajax({ url: "/HIPM01003/Charts",
+                cache: false,
+                type: 'post',
+                dataType: 'json',
+                data: { 
+                        pPrdYmd: $("#pPrdYmd").val(),
+                        pPrdYm: $("#pPrdYr").val() + $("#pPrdMm").val(),
+                        pPrdDvsCd : "@strPrdDvsCd",
+                        pMenuCd: "@strMenuCd",
+                        pCond3:$(':radio[name="pCond3"]:checked').val()
+                        
+                },
+                success: function (data) {
+                    if (data.length > 0) {
+                        var chartInfo = data[0];
+                        fncSetChartStyle();
+
+                        $("h3 .unit").text("(단위: " + chartInfo.unit + ")");
+                        $("#chart_1").highcharts({
+                            title: { text: null },
+                            credits: {
+                                enabled: false
+                            },
+                            yAxis: {
+                                title: { text: null },
+                                labels: { format: '{value:.,2f}' },
+                                min : 0
+                            },
+                            legend: {
+                                itemDistance: 5,
+                                itemStyle: {
+                                    fontSize: "12px",
+                                    fontWeight: "normal"
+                                }
+                            },
+                            tooltip: {
+                                shared: true,
+                                crosshairs: true
+                            },
+                            xAxis: {
+                                categories: chartInfo.categories
+                            },
+                            series: data
+                        });
+                        
+                    } else {
+                        $("#chart_1").html("<p>조회된 데이터가 없습니다.</p>").css("line-height", ($("#divChart").height() - 10) + "px");
+                        $("#chart_1 p").css("line-height", "160px");
+                    }
+                }, error: function (obj) {
+
+                }
+            });
+        }
+
+
+        //1. 지표 기준: 지표 선택 시
+        function fncClickInd(pIdx, pIndCd, pIndNm, obj) {
+
+            $("#divLeft h3").text(pIndNm);
+            $("#hdnIndCd").val(pIndCd);
+            $(".emp_box").hide();
+            $(".ind_box").hide().css({
+                "left": (60 + @(intHeaderWidth) * pIdx) + "px",
+                "width": $(obj).width()
+             }).fadeIn(200);
+            
+            //개인별 비중 목록
+            $.ajax({ url: "/HIPM01003/EmpRtoList?type=@ent.pPrdDvsCd",
+                cache: false,
+                type: 'post',
+                dataType: 'html',
+                data: {
+                    pPrdYmd: $("#pPrdYmd").val(),
+                    pPrdYm: $("#pPrdYr").val() + $("#pPrdMm").val(),
+                    pIndCd: $("#hdnIndCd").val()
+                },
+                success: function (data) {
+                    $("#divLeft > div").html(data);
+                    fncTable();
+
+                    fncEmpRtoChart();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    fncAjaxSessionExpired(XMLHttpRequest);
+                }
+            });
+
+            fncSetPscdChart();
+
+        }
+        //1. 지표 기준: 개인별 비중 파이 차트
+        function fncEmpRtoChart() {
+
+            $.ajax({ url: "/HIPM01003/EmpRtoChart?type=@ent.pPrdDvsCd",
+                cache: false,
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    pPrdYmd: $("#pPrdYmd").val(),
+                    pPrdYm: $("#pPrdYr").val() + $("#pPrdMm").val(),
+                    pIndCd: $("#hdnIndCd").val()
+                },
+                success: function (data) {
+                    fncPieChart("#divRtoChart", data);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    fncAjaxSessionExpired(XMLHttpRequest);
+                }
+            });
+        }
+        //1. 지표 기준: 추세 차트 (병원평균, 과평균)
+        function fncSetPscdChart() {
+
+            $.ajax({ url: "/HIPM01003/PscdChart?type=@ent.pPrdDvsCd",
+                cache: false,
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    pPrdYmd: $("#pPrdYmd").val(),
+                    pPrdYm: $("#pPrdYr").val() + $("#pPrdMm").val(),
+                    pIndCd: $("#hdnIndCd").val()
+                },
+                success: function (data) {
+                    fncPscdLineChart("#divPscdChart", data, true);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    fncAjaxSessionExpired(XMLHttpRequest);
+                }
+            });                        
+        }
+        //1. 지표 기준: 추세 차트 개인 추가
+        function fncAddPscdChart(obj) {
+
+            var chart = $('#divPscdChart').highcharts();
+
+            if ($(obj).is(":checked")) {
+                $.ajax({ url: "/HIPM01003/PscdChart?type=@ent.pPrdDvsCd",
+                    cache: false,
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        pPrdYmd: $("#pPrdYmd").val(),
+                        pPrdYm: $("#pPrdYr").val() + $("#pPrdMm").val(),
+                        pIndCd: $("#hdnIndCd").val(),
+                        pEmpNo: $(obj).val()
+                    },
+                    success: function (data) {
+                        chart.addSeries(data[0]);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        fncAjaxSessionExpired(XMLHttpRequest);
+                    }
+                });
+            } else {
+                chart.get($(obj).val()).remove();
+            }
+        }
+
+        //2. 개인 기준: 개인 선택 시
+        function fncClickEmp(pIdx, pEmpNo) {
+
+            if(pIdx == "0"){  // 합계 선택 시
+                return false;
+            }
+            $("#hdnEmpNo").val(pEmpNo);
+            $(".ind_box").hide();
+            $(".emp_box").hide().css({
+                "top": (40 * pIdx) + "px"
+            }).fadeIn(200);
+            //개인 지표 실적 목록
+            $.ajax({ url: "/HIPM01003/IndList?type=@ent.pPrdDvsCd",
+                cache: false,
+                type: 'post',
+                dataType: 'html',
+                data: {
+                    pPrdYmd: $("#pPrdYmd").val(),
+                    pPrdYm: $("#pPrdYr").val() + $("#pPrdMm").val(),
+                    pEmpNo: $("#hdnEmpNo").val(),
+                    pCond3:$(':radio[name="pCond3"]:checked').val() 
+                },
+                success: function (data) {
+                    $("#divLeft > div").html(data);
+                    $("#divLeft > h3").text($("#hdnTitle").val());
+                    fncTable();
+
+                    $("#tblIndList tbody tr:eq(0)").trigger("click");
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    fncAjaxSessionExpired(XMLHttpRequest);
+                }
+            });
+        }
+        //2. 개인 기준: 지표 선택 시 추세
+        function fncDetail(pIndCd, pIndNm, obj) {
+
+            fncTableRowSelect("tblIndList", obj);
+
+            $.ajax({ url: "/HIPM01003/PscdChart?type=@ent.pPrdDvsCd",
+                cache: false,
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    pCond1: "EmpPop",
+                    pPrdYmd: $("#pPrdYmd").val(),
+                    pPrdYm: $("#pPrdYr").val() + $("#pPrdMm").val(),
+                    pEmpNo: $("#hdnEmpNo").val(),
+                    pIndCd: pIndCd
+                },
+                success: function (data) {
+                    fncPscdLineChart("#divPscdChart", data, true);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    fncAjaxSessionExpired(XMLHttpRequest);
+                }
+            });
+        }
+    </script>
+}
+@section SearchBar {
+
+
+    @Inc.radio_hash(hashSrchDvs, "pCond3", "", ent.pCond3)
+
+    <span>기간</span>
+    @if (ent.pPrdDvsCd == "M") {
+        @IncDate.prd_yr("pPrdYr", ent.pPrdYr)
+        @IncDate.prd_mm("pPrdMm", ent.pPrdMm)
+    } else {
+        @IncDate.prd_ymd("pPrdYmd", ent.pPrdYmd)
+    }
+
+   
+    @IncDate.prd_btn()
+
+}
+
+<div class="section">
+    <h3>
+        <span class="unit right"></span>
+    </h3>
+    <div id="chart_1" class="div_tbl">
+    </div>
+</div>
+<div style="position:relative">
+    <table id="tblEmpListHeader" class="tbl_list">
+        <colgroup>
+	    <col style="width:60px" /> <!-- 의사명 -->
+        @for (int i = 0; i < intIndCnt; i++)
+        {
+            <col style="width:@(i < intIndCnt - 1 ? string.Format("{0}px", intHeaderWidth) : "auto")" />
+        }
+        </colgroup>
+        <thead>
+        <tr style="height:37px">
+            <th class="rightline">의사명</th>
+            @{
+                intRowCnt = 0;
+                string strIndNm;
+                string[] arrFmt = new string[intIndCnt];
+                string[] arrUnitType = new string[intIndCnt];
+                DataRow drHeader;
+
+                for (int i = 0; i < intIndCnt; i++)
+                {
+                    drHeader = dtHeader.Rows[i];
+                    strIndNm = drHeader["IND_NM"].ToString();
+                    strIndNm = strIndNm.Replace("수익", "").Replace("수가", "");
+                    if (strIndNm.Length > 8)
+                    {
+                        strIndNm = strIndNm.Replace(" ", "<br />");
+                    }
+
+                    arrFmt[intRowCnt] = drHeader["FMT"].ToString();
+                    arrUnitType[intRowCnt] = drHeader["UNIT_TYP"].ToString();
+                    
+                    <th class="@(intRowCnt < intIndCnt - 1 ? "rightline" : "")"
+                        onclick="fncClickInd(@intRowCnt, '@drHeader["IND_CD"]', '@drHeader["IND_NM"]', this)"
+                        style="@(strIndNm.Length > 8 ? "line-height:15px; font-size:13px" : ""); cursor:pointer">@Html.Raw(strIndNm)</th>
+                    intRowCnt++;
+                }
+            }
+        </tr>
+        </thead>
+    </table>
+    <div class="sel_box ind_box"></div>
+    <div id="divEmpList" class="div_tbl_scroll">
+        <div class="sel_box emp_box"></div>
+        @if (dt.Rows.Count == 0)
+        {
+            <p>조회된 데이터가 없습니다.</p>
+        }
+        else
+        {
+            intRowCnt = 0;
+            <table id="tblEmpList">
+                <colgroup>
+	            <col style="width:60px" /> <!-- 의사명 -->
+                @for (int i = 0; i < intIndCnt; i++)
+                {
+                   <col style="width:@(i < intIndCnt - 1 ? string.Format("{0}px", intHeaderWidth) : "auto")" />
+                }
+                </colgroup>
+                <tbody>
+                @foreach (DataRow row in dt.Rows)
+                {
+                    <tr style="height:40px">
+                        <td class="rightline t_center" onclick="fncClickEmp(@intRowCnt, '@row["EMP_NO"]')" style="cursor:pointer;width:60px">@row["EMP_NM"]</td>
+                        @for (int i = 0; i < intIndCnt; i++)
+                        {
+                            <td class="@(i < intIndCnt - 1 ? "rightline" : "") t_right">@Config.GetUnitVal(Convert.ToDouble(row[string.Format("RSLT{0}", i + 1)]), arrFmt[i], arrUnitType[i])<span class="unit">@Config.strRetUnitTypeNm</span></td>
+                        }
+                    </tr>
+                        intRowCnt++;
+                }
+                @for (int i = intRowCnt; i < 5; i++)
+                {
+                    <tr style="height:40px">
+                        <td class="rightline t_center"></td>
+                        @for (int j = 0; j < intIndCnt; j++)
+                        {
+                            <td class="@(j < intIndCnt - 1 ? "rightline" : "") t_right"></td>
+                        }
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+<img src="/Content/images/icon/arrow_bottom_black.png" alt="상단 목록 클릭시 하단에 상세 실적이 표시됩니다." style="position:absolute; left:50%; margin-left:-12px" />
+
+<input type="hidden" id="hdnIndCd" name="hdnIndCd" />
+<input type="hidden" id="hdnEmpNo" name="hdnEmpNo" />
+<div id="divLeft" class="left" style="width:580px">
+    <h3></h3>
+    <div>
+    </div>
+</div>
+
+<div id="divRight" class="right" style="width:580px">
+    <h3>추세데이터
+        <span class="unit right"></span>
+    </h3>
+    <div id="divPscdChart" class="div_tbl" style="height:270px">
+    </div>
+</div>
