@@ -1,0 +1,87 @@
+﻿@{
+    ComnEnt ent = ViewBag.ent;
+
+    DataRow drEmp = ViewBag.drEmp;
+    string strTitle;
+    if (drEmp == null)
+    {
+        strTitle = "Records";
+    }
+    else
+    {
+        strTitle = string.Format("{0} {1} {2}", drEmp["DEPT_NM"], drEmp["EMP_NM"], drEmp["PSTN_NM"]);
+    }
+
+    DataTable dt = ViewBag.dt;
+}
+<input type="hidden" id="hdnTitle" name="hdnTitle" value="@strTitle" />
+    <table class="tbl_list" style="width:100%; table-layout:fixed">
+        <colgroup>
+	    <col style="width:230px" /> <!-- Name of index -->
+	    <col style="width:120px" /> <!-- Records -->
+        <col style="width:120px" /> <!-- An average of last year -->
+        <col style="width:auto" /> <!-- comparision -->
+        </colgroup>
+        <thead>
+	        <tr style="height:30px">
+                <th class="rightline">Name of index</th>
+                <th class="rightline">Records</th>
+                <th class="rightline">Daily Average</th>
+                <th>대비</th>
+            </tr>
+        </thead>
+    </table>
+    <div id="divIndList" class="div_tbl_scroll" style="height:240px">
+        @if (dt.Rows.Count == 0)
+        {
+            <p style="line-height:230px; text-align:center">No Results</p>
+        }
+        else
+        {
+            int intRowCnt = 0;
+            string strFmt, strUnitType;
+            int intRtDvs; string strClass;
+            <table id="tblIndList" class="tbl_list" style="width:100%; table-layout:fixed">
+                <colgroup>
+	            <col style="width:230px" /> <!-- Name of index -->
+	            <col style="width:120px" /> <!-- Records -->
+                <col style="width:120px" /> <!-- An average of last year -->
+                <col style="width:auto" /> <!-- comparision -->
+                </colgroup>
+                <tbody>
+                @foreach (DataRow row in dt.Rows)
+                {
+                    strFmt = row["FMT"].ToString();
+                    strUnitType = row["UNIT_TYP"].ToString();
+                    
+                    intRtDvs = Convert.ToInt32(row["RT_DVS1"]);
+                    if (intRowCnt + 1 < dt.Rows.Count && intRtDvs != Convert.ToInt32(dt.Rows[intRowCnt + 1]["RT_DVS1"]))
+                    {
+                        strClass = intRtDvs == -1 ? "bottomline_red" : intRtDvs == 1 ? "bottomline_blue" : "";
+                    }
+                    else
+                    {
+                        strClass = string.Empty;
+                    }
+                    
+                    <tr onclick="fncDetail('@row["IND_CD"]', '@row["IND_NM"]', this)" style="height:30px; cursor:pointer">
+                        <td class="rightline t_left cut @strClass">@row["IND_NM"]</td>
+                        <td class="rightline t_right @strClass">@Config.GetUnitVal(Convert.ToDouble(row["RSLT"]), strFmt, strUnitType)<span class="unit">@Config.strRetUnitTypeNm</span></td>
+                        <td class="rightline t_right @strClass">@Config.GetUnitVal(Convert.ToDouble(row["RSLT2"]), strFmt, strUnitType)<span class="unit">@Config.strRetUnitTypeNm</span></td>
+                        <td class="t_right @strClass">@string.Format("{0:#,0}", Convert.ToDouble(row["RT2"]))<span class="unit">%</span> @Inc.rt_icon(intRtDvs)</td>
+                    </tr>
+                    intRowCnt++;
+                }
+                @for (int i = intRowCnt; i < 7; i++)
+                {
+                    <tr>
+                        <td class="rightline"></td>
+                        <td class="rightline"></td>
+                        <td class="rightline"></td>
+                        <td></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>

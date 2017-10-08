@@ -1,0 +1,73 @@
+﻿@{
+    ViewBag.Title = "Employee information";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    NMHI.Models.Domain.INTRA.INCU05Ent ent = ViewBag.ent;
+}
+
+@section Header {
+ <style type="text/css">
+    .tbl_input tr{height:31px;}
+    .divList{height:621px;margin-top:-1px;}
+    #tblList thead tr{height:33px;}
+    #tblList tbody tr{height:31px;}
+</style>
+ <script type="text/javascript">
+     $(function () {
+         fncList();
+     });
+
+     function fncList(page, tot) {
+         $("#page, #tot").val(""); 
+         if (page != null) {
+             $("#page").val(page);
+             $("#tot").val(tot);
+         }
+         $.ajax({ url: "/INCU05/List" + GetQueryString(),
+             cache: false,
+             type: 'post',
+             dataType: 'html',
+             data: $("#frmSearch").serializeArray(),
+             success: function (data) {
+                 $("#divList").html(data);
+                 fncTable();
+                 fncPlaceHolder();
+             },
+             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                 fncAjaxSessionExpired(XMLHttpRequest);
+             }
+         });
+     }
+
+     //Details
+     function fncDetail(pHspCd, pEmpNo, pStdDt, pRealDeptCd) {
+         location.href = "/INCU05/Detail" + GetQueryString() + "&pHspCd=" + pHspCd + "&pEmpNo=" + pEmpNo + "&pStdDt=" + pStdDt + "&pRealDeptCd=" + pRealDeptCd;
+     }
+
+     //Search filter QueryString
+     function GetQueryString() {
+         fncResetPlaceHolder($("#frmSearch"));
+
+         var vQueryString = "?pSrchHspCd=" + $("#pSrchHspCd").val() + "&pDeptNm=" + escape($("#pDeptNm").val()) + "&pPstnCd=" + $("#pPstnCd").val()
+                 + "&pEmpNm=" + escape($("#pEmpNm").val())
+                 + "&pWrkStatCd=" + $("#pWrkStatCd").val()
+                 + "&page=" + $("#page").val() + "&tot=" + $("#tot").val();
+         return vQueryString;
+     }
+ </script>
+}
+@section SearchBar {
+    @Inc.select_com("MC001", "pSrchHspCd", ent.pSrchHspCd, "Hospital", "width:100px;")
+    @Inc.dept("pDept", ent.pDeptCd,"","","","M")
+       
+    @Inc.select_com("MI003", "pPstnCd", ent.pPstnCd, "Position", "width:100px;margin-left:5px;", "")
+    <input type="text" id="pEmpNm" name="pEmpNm" placeholder="Name of employee" value="@ent.pEmpNm" style="width:100px;margin-right:5px;" onkeypress="return fncEnter();" />
+    @Inc.select_com("MI005", "pWrkStatCd", ent.pWrkStatCd, "Status", "width:100px;")
+       
+
+    <input type="hidden" id="page" name="page" value="@ent.page" />
+    <input type="hidden" id="tot" name="tot" value="@ent.tot" />
+}
+<div id = "divList">
+</div>
+

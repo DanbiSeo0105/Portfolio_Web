@@ -1,17 +1,17 @@
 ﻿@{
-    ViewBag.Title = "개인별 현황";
+    ViewBag.Title = "Status";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    //조회구분
+    //Division for search
     System.Collections.Hashtable hashSrchDvs = new System.Collections.Hashtable();
-    hashSrchDvs.Add(1, new hash() { name = "진료성형수익", value = "1" });
-    hashSrchDvs.Add(2, new hash() { name = "진료피부수익", value = "2" });
-    hashSrchDvs.Add(3, new hash() { name = "수가성형수익", value = "3" });
-    hashSrchDvs.Add(4, new hash() { name = "수가피부수익", value = "4" });
+    hashSrchDvs.Add(1, new hash() { name = "Income of a plastic surgery treatment", value = "1" });
+    hashSrchDvs.Add(2, new hash() { name = "Income of a skin care treatment", value = "2" });
+    hashSrchDvs.Add(3, new hash() { name = "Income of a medical charge of plastic surgery", value = "3" });
+    hashSrchDvs.Add(4, new hash() { name = "Income of a medical charge of skin care", value = "4" });
     
     ComnEnt ent = ViewBag.ent;
 
-    ViewBag.Title = ent.pPrdDvsCd == "M" ? "월간시술별실적" : "일간시술별실적";
+    ViewBag.Title = ent.pPrdDvsCd == "M" ? "Monthly records" : "Weekly records";
 
     string strPrdDvsCd = ent.pPrdDvsCd.ToString();
     string strMenuCd = ent.pMenuCd.ToString();
@@ -98,7 +98,7 @@
                         });
                         
                     } else {
-                        $("#chart_1").html("<p>조회된 데이터가 없습니다.</p>").css("line-height", ($("#divChart").height() - 10) + "px");
+                        $("#chart_1").html("<p>No Results</p>").css("line-height", ($("#divChart").height() - 10) + "px");
                         $("#chart_1 p").css("line-height", "160px");
                     }
                 }, error: function (obj) {
@@ -108,7 +108,7 @@
         }
 
 
-        //1. 지표 기준: 지표 선택 시
+        //1. Based on an index: Index
         function fncClickInd(pIdx, pIndCd, pIndNm, obj) {
 
             $("#divLeft h3").text(pIndNm);
@@ -119,7 +119,7 @@
                 "width": $(obj).width()
              }).fadeIn(200);
             
-            //개인별 비중 목록
+            //List of ratio
             $.ajax({ url: "/HIPM01003/EmpRtoList?type=@ent.pPrdDvsCd",
                 cache: false,
                 type: 'post',
@@ -143,7 +143,7 @@
             fncSetPscdChart();
 
         }
-        //1. 지표 기준: 개인별 비중 파이 차트
+        //1. Based on an index: A pie chart
         function fncEmpRtoChart() {
 
             $.ajax({ url: "/HIPM01003/EmpRtoChart?type=@ent.pPrdDvsCd",
@@ -163,7 +163,7 @@
                 }
             });
         }
-        //1. 지표 기준: 추세 차트 (병원평균, 과평균)
+        //1.  Based on an index: A chart for trend (The average of hospital or department)
         function fncSetPscdChart() {
 
             $.ajax({ url: "/HIPM01003/PscdChart?type=@ent.pPrdDvsCd",
@@ -183,7 +183,7 @@
                 }
             });                        
         }
-        //1. 지표 기준: 추세 차트 개인 추가
+        //1.  Based on an index: Add a doctor at chart
         function fncAddPscdChart(obj) {
 
             var chart = $('#divPscdChart').highcharts();
@@ -211,10 +211,10 @@
             }
         }
 
-        //2. 개인 기준: 개인 선택 시
+        //2. Based on employee: Employee
         function fncClickEmp(pIdx, pEmpNo) {
 
-            if(pIdx == "0"){  // 합계 선택 시
+            if(pIdx == "0"){  // Choose sum
                 return false;
             }
             $("#hdnEmpNo").val(pEmpNo);
@@ -222,7 +222,7 @@
             $(".emp_box").hide().css({
                 "top": (40 * pIdx) + "px"
             }).fadeIn(200);
-            //개인 지표 실적 목록
+            //List of records of index
             $.ajax({ url: "/HIPM01003/IndList?type=@ent.pPrdDvsCd",
                 cache: false,
                 type: 'post',
@@ -245,7 +245,7 @@
                 }
             });
         }
-        //2. 개인 기준: 지표 선택 시 추세
+        //2. Based on employee: Index
         function fncDetail(pIndCd, pIndNm, obj) {
 
             fncTableRowSelect("tblIndList", obj);
@@ -282,11 +282,8 @@
         @IncDate.prd_mm("pPrdMm", ent.pPrdMm)
     } else {
         @IncDate.prd_ymd("pPrdYmd", ent.pPrdYmd)
-    }
-
-   
+    }   
     @IncDate.prd_btn()
-
 }
 
 <div class="section">
@@ -299,7 +296,7 @@
 <div style="position:relative">
     <table id="tblEmpListHeader" class="tbl_list">
         <colgroup>
-	    <col style="width:60px" /> <!-- 의사명 -->
+	    <col style="width:60px" /> <!-- Name of doctor -->
         @for (int i = 0; i < intIndCnt; i++)
         {
             <col style="width:@(i < intIndCnt - 1 ? string.Format("{0}px", intHeaderWidth) : "auto")" />
@@ -307,7 +304,7 @@
         </colgroup>
         <thead>
         <tr style="height:37px">
-            <th class="rightline">의사명</th>
+            <th class="rightline">Name of doctor</th>
             @{
                 intRowCnt = 0;
                 string strIndNm;
@@ -319,7 +316,7 @@
                 {
                     drHeader = dtHeader.Rows[i];
                     strIndNm = drHeader["IND_NM"].ToString();
-                    strIndNm = strIndNm.Replace("수익", "").Replace("수가", "");
+                    strIndNm = strIndNm.Replace("Income", "").Replace("Medical charge", "");
                     if (strIndNm.Length > 8)
                     {
                         strIndNm = strIndNm.Replace(" ", "<br />");
@@ -342,14 +339,14 @@
         <div class="sel_box emp_box"></div>
         @if (dt.Rows.Count == 0)
         {
-            <p>조회된 데이터가 없습니다.</p>
+            <p>No Results.</p>
         }
         else
         {
             intRowCnt = 0;
             <table id="tblEmpList">
                 <colgroup>
-	            <col style="width:60px" /> <!-- 의사명 -->
+	            <col style="width:60px" /> <!-- Name of doctor -->
                 @for (int i = 0; i < intIndCnt; i++)
                 {
                    <col style="width:@(i < intIndCnt - 1 ? string.Format("{0}px", intHeaderWidth) : "auto")" />
@@ -382,7 +379,7 @@
         }
     </div>
 </div>
-<img src="/Content/images/icon/arrow_bottom_black.png" alt="상단 목록 클릭시 하단에 상세 실적이 표시됩니다." style="position:absolute; left:50%; margin-left:-12px" />
+<img src="/Content/images/icon/arrow_bottom_black.png" alt="If you click the list in the top, details will be displayed in the bottom" style="position:absolute; left:50%; margin-left:-12px" />
 
 <input type="hidden" id="hdnIndCd" name="hdnIndCd" />
 <input type="hidden" id="hdnEmpNo" name="hdnEmpNo" />
@@ -393,7 +390,7 @@
 </div>
 
 <div id="divRight" class="right" style="width:580px">
-    <h3>추세데이터
+    <h3>Data Trend
         <span class="unit right"></span>
     </h3>
     <div id="divPscdChart" class="div_tbl" style="height:270px">

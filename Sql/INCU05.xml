@@ -1,0 +1,917 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+
+<!--
+[Intranet] Community > Information of employees
+-->
+<sqlMap namespace="INCU05"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://ibatis.apache.org/mapping">
+
+  <alias>
+    <typeAlias alias="INCU05Ent" type="NMHI.Models.Domain.INTRA.INCU05Ent, NMHI" />
+  </alias>
+  
+  <statements>
+
+    <!--
+    Description : The number of employees(for paging)
+    Written By : Danbi Seo
+    Date Written : 2016.01.20
+    
+    -->
+    <select id="SelListCnt" parameterClass="INCU05Ent">    
+
+      SELECT COUNT(EMP_NO)
+        FROM (
+              SELECT RANK() OVER (ORDER BY (CASE WHEN EMP_NO = #sesLoginEmpNo# THEN 1 ElSE 2 END), OCRS_CD, PSTN_CD, JICP_DT, EMP_NO) PSEQ
+                   , A.HSP_CD, C.COMN_NM AS HSP_NM, A.EMP_NO, STD_DT, EMP_NM, PTO_NM, SIGN_NM, BRDY_DT, BRDY_DVS, SSNO
+                   , EMAIL, ZIP_CD, ADDR, JICP_DT, LVCP_DT, A.DEPT_CD, NVL(B.DEPT_NM,'-') AS DEPT_NM, REAL_HSP_CD
+                   , OCGR_CD, NVL(H.COMN_NM,'-') AS OCGR_NM, OCTY_CD, NVL(D.COMN_NM,'-') AS OCTY_NM
+                   , PSTN_CD, NVL(E.COMN_NM,'-') AS PSTN_NM, OCRS_CD, NVL(F.COMN_NM,'-') AS OCRS_NM, WRK_STAT_CD
+                   , EXTS_NO, TEL_NO, CLPH_NO, REAL_DEPT_CD, I.DEPT_NM AS REAL_DEPT_NM
+                FROM (
+                      SELECT RANK() OVER (PARTITION BY A.HSP_CD, A.EMP_NO ORDER BY STD_DT DESC) STD_SEQ
+                           , A.HSP_CD
+                           , EMP_NO, STD_DT, EMP_NM, PTO_NM, SIGN_NM
+                           , SUBSTR(DECODE(BRDY_DT,NULL,'19001231',BRDY_DT),5,2) ||'월 '|| SUBSTR(DECODE(BRDY_DT,NULL,'19001231',BRDY_DT),7,2) ||'일' AS BRDY_DT
+                           , BRDY_DVS, SSNO, NVL(EMAIL,  '-') AS EMAIL, ZIP_CD, ADDR
+                           , NVL(JICP_DT,'-') AS JICP_DT, NVL(LVCP_DT,'-') AS LVCP_DT, A.DEPT_CD
+                           , REAL_HSP_CD
+                           , OCGR_CD                           
+                           , OCTY_CD                           
+                           , PSTN_CD
+                           , OCRS_CD                           
+                           , WRK_STAT_CD, NVL(EXTS_NO,'-') AS EXTS_NO, NVL(TEL_NO, '-') AS TEL_NO, CLPH_NO, REAL_DEPT_CD
+                        FROM CM_EMP_MST A 
+                       WHERE 1=1
+                  ORDER BY OCRS_CD, PSTN_CD, JICP_DT
+                ) A
+              , V_DEPT_MST B 
+              , CM_COMN_CD C
+              , CM_COMN_CD D
+              , CM_COMN_CD E
+              , CM_COMN_CD F
+              , CM_COMN_CD H
+              , V_DEPT_MST I
+          WHERE A.STD_SEQ = 1
+            AND A.HSP_CD  = B.HSP_CD (+)
+            AND A.DEPT_CD = B.DEPT_CD (+)
+            AND A.HSP_CD  = C.HSP_CD(+)
+            AND A.HSP_CD  = D.HSP_CD(+)
+            AND A.HSP_CD  = E.HSP_CD(+)
+            AND A.HSP_CD  = F.HSP_CD(+)
+            AND A.HSP_CD  = H.HSP_CD(+)
+            AND A.HSP_CD  = I.HSP_CD(+)
+            AND A.REAL_DEPT_CD = I.DEPT_CD(+)
+            AND C.DVS_CD(+) ='MC001' 
+            AND D.DVS_CD(+) ='MI002' 
+            AND E.DVS_CD(+) ='MI003' 
+            AND F.DVS_CD(+) ='MI004' 
+            AND H.DVS_CD(+) ='MI001'
+            AND A.HSP_CD  = C.COMN_CD(+)
+            AND A.OCTY_CD = D.COMN_CD(+)
+            AND A.PSTN_CD = E.COMN_CD(+)
+            AND A.OCRS_CD = F.COMN_CD(+)
+            AND A.OCGR_CD = H.COMN_CD(+)
+          <isNotEmpty property="pSrchHspCd">
+            AND A.HSP_CD  = #pSrchHspCd#
+          </isNotEmpty>
+          <isNotEmpty property="pDeptCd">
+            AND A.REAL_DEPT_CD = #pDeptCd#
+          </isNotEmpty>
+          <isNotEmpty property="pPstnCd">
+            AND A.PSTN_CD  = #pPstnCd#
+          </isNotEmpty>
+          <isNotEmpty property="pWrkStatCd">
+            AND A.WRK_STAT_CD  = #pWrkStatCd#
+          </isNotEmpty>   
+          <isNotEmpty property="pEmpNm">
+            AND A.EMP_NM LIKE '%' || #pEmpNm# || '%'
+          </isNotEmpty>  
+         ) B
+    
+    </select>
+
+    <!--
+    Description : List of employeess
+    Written By : Danbi Seo
+    Date Written : 2016.01.20
+    
+    -->
+    <select id="SelList" parameterClass="INCU05Ent">
+      SELECT HSP_CD, HSP_NM, EMP_NO, STD_DT, EMP_NM, PTO_NM, SIGN_NM, BRDY_DT, BRDY_DVS, SSNO
+           , EMAIL, ZIP_CD, ADDR, JICP_DT, LVCP_DT, DEPT_CD, DEPT_NM, REAL_HSP_CD
+           , OCGR_CD, OCGR_NM, OCTY_CD, OCTY_NM, PSTN_NM, OCRS_NM, PSTN_CD, OCRS_CD, WRK_STAT_CD
+           , EXTS_NO, TEL_NO, CLPH_NO, REAL_DEPT_CD, REAL_DEPT_NM
+           , CASE WHEN DEPT_CD = ( SELECT DEPT_CD FROM V_EMP_MST WHERE HSP_CD = #sesHspCd# AND EMP_NO = #sesLoginEmpNo# ) AND #sesLoginGrpCls# = 'S' THEN 'Y' 
+                  WHEN EMP_NO = #sesLoginEmpNo# THEN 'Y'
+                  ELSE 'N' END AS VIEW_CHK
+        FROM (
+              SELECT RANK() OVER (ORDER BY (CASE WHEN EMP_NO = #sesLoginEmpNo# THEN 1 ElSE 2 END), OCRS_CD, PSTN_CD, JICP_DT, EMP_NO) PSEQ
+                   , A.HSP_CD, C.COMN_NM AS HSP_NM, A.EMP_NO, STD_DT, EMP_NM, PTO_NM, SIGN_NM, BRDY_DT, BRDY_DVS, SSNO
+                   , EMAIL, ZIP_CD, ADDR, JICP_DT, LVCP_DT, A.DEPT_CD, NVL(B.DEPT_NM,'-') AS DEPT_NM, REAL_HSP_CD
+                   , OCGR_CD, NVL(H.COMN_NM,'-') AS OCGR_NM, OCTY_CD, NVL(D.COMN_NM,'-') AS OCTY_NM
+                   , PSTN_CD, NVL(E.COMN_NM,'-') AS PSTN_NM, OCRS_CD, NVL(F.COMN_NM,'-') AS OCRS_NM, WRK_STAT_CD
+                   , EXTS_NO, TEL_NO, CLPH_NO, REAL_DEPT_CD, I.DEPT_NM AS REAL_DEPT_NM
+                FROM (
+                      SELECT RANK() OVER (PARTITION BY A.HSP_CD, A.EMP_NO ORDER BY STD_DT DESC) STD_SEQ
+                           , A.HSP_CD
+                           , EMP_NO, STD_DT, EMP_NM, PTO_NM, SIGN_NM
+                           , SUBSTR(DECODE(BRDY_DT,NULL,'19001231',BRDY_DT),5,2) ||'월 '|| SUBSTR(DECODE(BRDY_DT,NULL,'19001231',BRDY_DT),7,2) ||'일' AS BRDY_DT
+                           , BRDY_DVS, SSNO, NVL(EMAIL,  '-') AS EMAIL, ZIP_CD, ADDR
+                           , NVL(JICP_DT,'-') AS JICP_DT, NVL(LVCP_DT,'-') AS LVCP_DT, A.DEPT_CD
+                           , REAL_HSP_CD
+                           , OCGR_CD                           
+                           , OCTY_CD                           
+                           , PSTN_CD
+                           , OCRS_CD                           
+                           , WRK_STAT_CD, NVL(EXTS_NO,'-') AS EXTS_NO, NVL(TEL_NO, '-') AS TEL_NO, CLPH_NO, REAL_DEPT_CD
+                        FROM CM_EMP_MST A 
+                       WHERE A.STD_DT = (SELECT MAX(STD_DT)
+                                           FROM CM_EMP_MST B
+                                          WHERE B.HSP_CD = A.HSP_CD
+                                            AND B.EMP_NO = A.EMP_NO)
+                  ORDER BY OCRS_CD, PSTN_CD, JICP_DT
+                ) A
+              , V_DEPT_MST B 
+              , CM_COMN_CD C
+              , CM_COMN_CD D
+              , CM_COMN_CD E
+              , CM_COMN_CD F
+              , CM_COMN_CD H
+              , V_DEPT_MST I
+          WHERE A.STD_SEQ = 1
+            AND A.HSP_CD  = B.HSP_CD (+)
+            AND A.DEPT_CD = B.DEPT_CD (+)
+            AND A.HSP_CD  = C.HSP_CD(+)
+            AND A.HSP_CD  = D.HSP_CD(+)
+            AND A.HSP_CD  = E.HSP_CD(+)
+            AND A.HSP_CD  = F.HSP_CD(+)
+            AND A.HSP_CD  = H.HSP_CD(+)
+            AND A.HSP_CD  = I.HSP_CD(+)
+            AND A.REAL_DEPT_CD = I.DEPT_CD(+)
+            AND C.DVS_CD(+) ='MC001' 
+            AND D.DVS_CD(+) ='MI002' 
+            AND E.DVS_CD(+) ='MI003' 
+            AND F.DVS_CD(+) ='MI004' 
+            AND H.DVS_CD(+) ='MI001'
+            AND A.HSP_CD  = C.COMN_CD(+)
+            AND A.OCTY_CD = D.COMN_CD(+)
+            AND A.PSTN_CD = E.COMN_CD(+)
+            AND A.OCRS_CD = F.COMN_CD(+)
+            AND A.OCGR_CD = H.COMN_CD(+)
+          <isNotEmpty property="pSrchHspCd">
+            AND A.HSP_CD  = #pSrchHspCd#
+          </isNotEmpty>
+          <isNotEmpty property="pDeptCd">
+            AND A.REAL_DEPT_CD = #pDeptCd#
+          </isNotEmpty>
+          <isNotEmpty property="pPstnCd">
+            AND A.PSTN_CD  = #pPstnCd#
+          </isNotEmpty>
+          <isNotEmpty property="pWrkStatCd">
+            AND A.WRK_STAT_CD  = #pWrkStatCd#
+          </isNotEmpty>   
+          <isNotEmpty property="pEmpNm">
+            AND A.EMP_NM LIKE '%' || #pEmpNm# || '%'
+          </isNotEmpty>  
+         ) B
+      WHERE B.PSEQ BETWEEN (#page_sz#*(#page#-1) + 1) AND (#page_sz#*#page#)
+    </select>
+
+
+    <!--
+    Description : Detail information of employees
+    Written By : Danbi Seo
+    Date Written : 2016.01.23
+    
+    -->
+    <select id="EmpDetail" parameterClass="INCU05Ent" resultClass="INCU05Ent">
+      SELECT A.HSP_CD, EMP_NO, STD_DT, EMP_NM, PTO_NM, SIGN_NM
+           , DECODE(BRDY_DT,NULL,'19001231', BRDY_DT) AS BRDY_DT
+           , BRDY_DVS, SSNO, EMAIL, ZIP_CD, ADDR, JICP_DT, LVCP_DT, A.DEPT_CD, B.DEPT_NM AS DEPT_NM
+           , REAL_HSP_CD
+           , OCGR_CD
+           , OCTY_CD
+           , C.COMN_NM AS OCTY_NM
+           , PSTN_CD
+           , D.COMN_NM AS PSTN_NM
+           , OCRS_CD
+           , E.COMN_NM AS OCRS_NM
+           , WRK_STAT_CD, EXTS_NO, TEL_NO, CLPH_NO
+           , REAL_DEPT_CD, F.DEPT_NM REAL_DEPT_NM
+       FROM CM_EMP_MST A
+           , V_DEPT_MST B
+           , CM_COMN_CD C
+           , CM_COMN_CD D
+           , CM_COMN_CD E
+           , V_DEPT_MST F
+       WHERE A.HSP_CD  = #pHspCd#
+         AND A.EMP_NO  = #pEmpNo#
+         AND A.STD_DT  = #pStdDt#
+         AND A.HSP_CD  = B.HSP_CD (+)
+         AND A.DEPT_CD = B.DEPT_CD (+)
+         AND A.HSP_CD  = C.HSP_CD(+)
+         AND A.HSP_CD  = D.HSP_CD(+)
+         AND A.HSP_CD  = E.HSP_CD(+)
+         AND A.HSP_CD =  F.HSP_CD(+)
+         AND A.REAL_DEPT_CD =  F.DEPT_CD(+)
+         AND C.DVS_CD(+) ='MI002'
+         AND D.DVS_CD(+) ='MI003'
+         AND E.DVS_CD(+) ='MI004'
+         AND A.OCTY_CD = C.COMN_CD(+)
+         AND A.PSTN_CD = D.COMN_CD(+)
+         AND A.OCRS_CD = E.COMN_CD(+)
+    </select>
+
+
+	<!--
+    Description : Original list of employees
+    Written By : Danbi Seo
+    Date Written : 2016.01.23
+    
+    -->
+	  <select id="SelEmpList" parameterClass="INCU05Ent" resultClass="INCU05Ent">
+
+		 SELECT EMP_NO
+		 	  , EMP_NM
+		   FROM CM_EMP_MST
+		  WHERE HSP_CD = #sesHspCd#
+		  ORDER BY EMP_NO
+	  </select>
+
+
+	  <!--
+    Description : Individual day off
+    Written By : Danbi Seo
+    Date Written : 2016.06.24
+    
+    -->
+    <select id="SelVctInfo" parameterClass="INCU05Ent">
+      <![CDATA[
+      SELECT V.VCT_CNT                                                         
+           , NVL(A.VCT_USE_DYS, 0) AS VCT_USE_DYS                                   
+           , V.VCT_CNT - NVL(A.VCT_USE_DYS, 0) AS VCT_NUSE_DYS
+           , NVL(A.VCT_USE_DYS_00, 0) AS VCT_USE_DYS_00            
+           , NVL(A.VCT_USE_DYS_10, 0) AS VCT_USE_DYS_10            
+           , NVL(A.VCT_USE_DYS_20, 0) AS VCT_USE_DYS_20            
+           , NVL(A.VCT_USE_DYS_90, 0) AS VCT_USE_DYS_90            
+           , NVL(A.VCT_USE_DYS_30, 0) AS VCT_USE_DYS_30            
+           , NVL(A.VCT_USE_DYS_40, 0) AS VCT_USE_DYS_40            
+           , NVL(A.VCT_USE_DYS_50, 0) AS VCT_USE_DYS_50            
+           , NVL(A.VCT_USE_DYS_60, 0) AS VCT_USE_DYS_60            
+           , NVL(A.VCT_USE_DYS_70, 0) AS VCT_USE_DYS_70      
+        FROM (SELECT HSP_CD
+                   , EMP_NO
+                   , EMP_NM
+                   , JICP_DT 
+                   , CASE WHEN SUBSTR(JICP_DT,1,4) = TO_CHAR(SYSDATE,'YYYY') THEN
+                               CASE WHEN SUBSTR(JICP_DT,5,2) = '01' AND ADD_MONTHS(TO_DATE(JICP_DT,'YYYYMMDD'),6) < TRUNC(SYSDATE) THEN 3 
+                                    WHEN SUBSTR(JICP_DT,5,2) = '02' AND ADD_MONTHS(TO_DATE(JICP_DT,'YYYYMMDD'),6) < TRUNC(SYSDATE) THEN 2.5
+                                    WHEN SUBSTR(JICP_DT,5,2) = '03' AND ADD_MONTHS(TO_DATE(JICP_DT,'YYYYMMDD'),6) < TRUNC(SYSDATE) THEN 2
+                                    WHEN SUBSTR(JICP_DT,5,2) = '04' AND ADD_MONTHS(TO_DATE(JICP_DT,'YYYYMMDD'),6) < TRUNC(SYSDATE) THEN 1.5
+                                    WHEN SUBSTR(JICP_DT,5,2) = '05' AND ADD_MONTHS(TO_DATE(JICP_DT,'YYYYMMDD'),6) < TRUNC(SYSDATE) THEN 1
+                                    WHEN SUBSTR(JICP_DT,5,2) = '06' AND ADD_MONTHS(TO_DATE(JICP_DT,'YYYYMMDD'),6) < TRUNC(SYSDATE) THEN 0.5
+                                    ELSE 0
+                                    END 
+                          ELSE 
+                               CASE WHEN TO_NUMBER(TO_CHAR(SYSDATE,'YYYY')) - TO_NUMBER(SUBSTR(JICP_DT,1,4)) < 10 THEN 6+TO_NUMBER(TO_CHAR(SYSDATE,'YYYY')) - TO_NUMBER(SUBSTR(JICP_DT,1,4))
+                               ELSE 15
+                               END
+                          END AS VCT_CNT      
+                FROM V_EMP_MST
+              WHERE EMP_NO NOT IN ('ADMIN','1000001')
+             ) V
+           , (SELECT A.HSP_CD, A.APV_EMP_NO
+                   , SUM(CASE WHEN A.VCT_CLS IN ('00', '10', '20', '90') THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS
+                   , SUM(CASE WHEN A.VCT_CLS = '00'                THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS_00
+                   , SUM(CASE WHEN A.VCT_CLS = '10'                THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS_10
+                   , SUM(CASE WHEN A.VCT_CLS = '20'                THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS_20
+                   , SUM(CASE WHEN A.VCT_CLS = '90'                THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS_90
+                   , SUM(CASE WHEN A.VCT_CLS = '30'                THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS_30
+                   , SUM(CASE WHEN A.VCT_CLS = '40'                THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS_40
+                   , SUM(CASE WHEN A.VCT_CLS = '50'                THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS_50
+                   , SUM(CASE WHEN A.VCT_CLS = '60'                THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS_60
+                   , SUM(CASE WHEN A.VCT_CLS = '70'                THEN A.VCT_USE_DYS ELSE 0 END) AS VCT_USE_DYS_70
+                FROM (
+                      SELECT A.HSP_CD, A.KEY_NO, A.APV_EMP_NO, C.COMN_CLS AS VCT_CLS
+                           , SUM(CASE WHEN A.STRT_DT = A.END_DT AND C.MEMO = '0.5' THEN 0.5 ELSE D.WRK_DYS_OTPT END) AS VCT_USE_DYS          
+                        FROM GA_APV A
+                           , CM_COMN_CD C
+                           , DD_PRD_DD D
+                       WHERE A.HSP_CD  = #sesHspCd#
+                         AND A.DOC_TYP = 'VC'
+                         AND A.STAT_CD = 'C'
+                         AND C.DVS_CD  = 'UT040'
+                         AND A.HSP_CD  = C.HSP_CD
+                         AND A.VCT_DVS = C.COMN_CD
+                         AND A.HSP_CD  = D.HSP_CD
+                         AND D.PRD_YMD BETWEEN A.STRT_DT
+                                           AND A.END_DT
+                         AND A.STRT_DT >= SUBSTR(TO_CHAR(SYSDATE,'YYYYMMDD'),1,4)||'0101'
+                         AND A.STRT_DT <= TO_CHAR(SYSDATE,'YYYYMMDD')
+                       GROUP BY A.HSP_CD, A.KEY_NO, A.APV_EMP_NO, C.COMN_CLS
+                     ) A
+               GROUP BY A.HSP_CD, A.APV_EMP_NO     
+             ) A
+       WHERE V.HSP_CD = #sesHspCd#
+         AND V.EMP_NO = #pEmpNo#
+         AND V.HSP_CD = A.HSP_CD(+)
+         AND V.EMP_NO = A.APV_EMP_NO(+)   
+      ]]>
+    </select>
+    
+    <!--
+    Description : History of employee information
+    Written By : Danbi Seo
+    Date Written : 2016.01.23
+    
+    -->
+    <select id="SelHstList" parameterClass="INCU05Ent">      
+      SELECT TO_CHAR(TO_DATE(A.STD_DT,'YYYYMMDD'),'YYYY-MM-DD') STD_DT_NM
+            , STD_DT
+            , A.HSP_CD
+            , NVL(C.COMN_NM, '-') AS HSP_NM
+            , EMP_NO, EMP_NM, JICP_DT, LVCP_DT, A.DEPT_CD, NVL(B.DEPT_NM, '-') AS DEPT_NM  
+            , OCGR_CD 
+            , NVL(H.COMN_NM,'-') AS OCGR_NM
+            , OCTY_CD
+            , NVL(D.COMN_NM, '-') AS OCTY_NM
+            , PSTN_CD
+            , NVL(E.COMN_NM, '-') AS PSTN_NM
+            , OCRS_CD
+            , NVL(F.COMN_NM, '-') AS OCRS_NM
+            , WRK_STAT_CD
+            , NVL(G.COMN_NM, '-') AS WRK_STAT_NM
+        FROM CM_EMP_MST A 
+            , V_DEPT_MST B 
+            , CM_COMN_CD C
+            , CM_COMN_CD D
+            , CM_COMN_CD E
+            , CM_COMN_CD F
+            , CM_COMN_CD G 
+            , CM_COMN_CD H
+        WHERE A.HSP_CD  = #pHspCd#
+          AND A.EMP_NO  = #pEmpNo#
+          AND A.HSP_CD  = B.HSP_CD (+)
+          AND A.DEPT_CD = B.DEPT_CD (+)
+          AND A.HSP_CD  = C.HSP_CD(+)
+          AND A.HSP_CD  = D.HSP_CD(+)
+          AND A.HSP_CD  = E.HSP_CD(+)
+          AND A.HSP_CD  = F.HSP_CD(+)
+          AND A.HSP_CD  = G.HSP_CD(+)
+          AND A.HSP_CD  = H.HSP_CD(+)
+          AND C.DVS_CD(+) ='MC001' 
+          AND D.DVS_CD(+) ='MI002' 
+          AND E.DVS_CD(+) ='MI003' 
+          AND F.DVS_CD(+) ='MI004' 
+          AND G.DVS_CD(+) ='MI005'  
+          AND H.DVS_Cd(+) ='MI001'
+          AND A.OCTY_CD = D.COMN_CD(+)
+          AND A.PSTN_CD = E.COMN_CD(+)
+          AND A.OCRS_CD = F.COMN_CD(+)
+          AND A.WRK_STAT_CD = G.COMN_CD(+)
+          AND A.OCGR_CD = H.COMN_CD(+)
+        ORDER BY A.STD_DT DESC             
+    </select>
+    
+
+    <!--
+    Description : Insert employee's information
+    Written By : Danbi Seo
+    Date Written : 2016.01.24
+    
+    -->
+    <update id="InsEmp" parameterClass="INCU05Ent">
+      INSERT INTO CM_EMP_MST
+            ( HSP_CD
+            , EMP_NO
+            , STD_DT
+            , EMP_NM
+            , PTO_NM
+            , BRDY_DT
+            , BRDY_DVS
+            , SSNO
+            , PW
+            , EMAIL
+            , ZIP_CD
+            , ADDR
+            , JICP_DT
+            , LVCP_DT
+            , DEPT_CD
+            , REAL_HSP_CD
+            , REAL_DEPT_CD
+            , OCGR_CD
+            , PSTN_CD
+            , OCRS_CD
+            , WRK_STAT_CD
+            , EXTS_NO
+            , TEL_NO
+            , CLPH_NO
+            , INPT_EMP_NO
+            , INPT_IP
+            , INPT_DTM
+            )
+      VALUES (#cboHspCd#
+            , #pEmpNo#
+            , #pStdDt#
+            , #txtEmpNm#
+            , #pPtoNm#
+            , #pBrdy#
+            , #rdoBrdyDvs#
+            , #txtssno#
+            , DEFAULT
+            , #txtEmail#
+            , #txtZipCd#
+            , #txtAddr#
+            , #InPrdYmd#
+            , #OutPrdYmd#
+            , #hdnDeptCd#
+            , #cboHspCd#
+            , #hdnRealDeptCd#
+            , #cboOcgrCd#
+            , #cboPstnCd#
+            , #cboOcrsCd#
+            , #cboWrkSt#
+            , #txtExtsNo#
+            , #txtTelNo#
+            , #txtCPhn#
+            , #sesLoginEmpNo#
+            , #userIP#
+            , SYSDATE
+            )
+
+    </update>
+
+    <!--
+    Description : Update employee's information
+    Written By : Danbi Seo
+    Date Written : 2016.01.24
+    
+    -->
+    <update id="UpdEmp" parameterClass="INCU05Ent">
+      UPDATE CM_EMP_MST
+         SET EMP_NM = #txtEmpNm#
+          <isNotEmpty property="pPtoNm">
+           , PTO_NM = #pPtoNm#
+          </isNotEmpty>
+           , BRDY_DT = #pBrdy#
+           , BRDY_DVS = #rdoBrdyDvs#
+           , SSNO = #txtssno#
+           , EMAIL = #txtEmail#
+           , ZIP_CD = #txtZipCd#
+           , ADDR = #txtAddr#
+           , JICP_DT = #InPrdYmd#
+           , LVCP_DT = #OutPrdYmd#
+           , DEPT_CD = #hdnDeptCd#
+           , REAL_DEPT_CD = #hdnRealDeptCd#
+           , OCGR_CD = #cboOcgrCd#
+           , PSTN_CD = #cboPstnCd#
+           , OCRS_CD = #cboOcrsCd#
+           , WRK_STAT_CD = #cboWrkSt#
+           , EXTS_NO = #txtExtsNo#
+           , TEL_NO = #txtTelNo#
+           , CLPH_NO = #txtCPhn#
+           , MDF_EMP_NO = #sesLoginEmpNo#
+           , MDF_IP = #userIP#
+           , MDF_DTM = SYSDATE
+       WHERE HSP_CD = #cboHspCd#
+         AND EMP_NO = #pEmpNo#
+         AND STD_DT = #pStdDt#
+    </update>
+    
+    <!--
+    Description : Delete employee's information
+    Written By : Danbi Seo
+    Date Written : 2016.03.22
+    
+    -->
+    <update id="DelEmp" parameterClass="INCU05Ent">
+      DELETE FROM CM_EMP_MST
+       WHERE HSP_CD = #cboHspCd#
+         AND EMP_NO = #pEmpNo#
+         AND STD_DT = #pStdDt#
+    </update>
+
+    <!--
+    Description : Select evaluation of records
+    Written By : Danbi Seo
+    Date Written : 2016.06.25
+    
+    -->
+    <select id="SelIndRslt" parameterClass="INCU05Ent">                 
+      SELECT A.IND_CD
+           , B.IND_NM
+           , NVL(SUM(A.TMM_RSLT),0) AS RSLT
+        FROM PM_IND_RSLT_MM  A
+           , CM_IND_MST      B
+           , CM_EMP_EVLT_IND C
+       WHERE A.HSP_CD = #pHspCd#
+         AND A.HSP_CD = B.HSP_CD
+         AND A.IND_CD = B.IND_CD
+         AND A.HSP_CD = C.HSP_CD
+         AND A.IND_CD = C.IND_CD
+         AND C.REAL_DEPT_CD = #pRealDeptCd#
+         AND (  (C.COMN_YN = 'N' AND A.EMP_NO = #pEmpNo#)
+             OR (C.COMN_YN = 'Y' ))
+         AND A.PRD_YM = (SELECT MAX(PRD_YM) FROM PM_IND_RSLT_MM WHERE HSP_CD = #pHspCd#)
+       GROUP BY 
+             A.IND_CD
+           , B.IND_NM
+    </select>
+    
+    <!--
+    Description : Select list of exam history
+    Written By : Danbi Seo
+    Date Written : 2016.06.24
+    
+    -->
+    <select id="SelExamList" parameterClass="INCU05Ent">
+      <isEqual property="pTabDvs" compareValue="tot">
+      SELECT A.*
+        FROM (
+      </isEqual>
+              SELECT E.EDU_SEQ
+                   , TO_CHAR(TO_DATE(E.EDU_DT,'YYYYMMDD'),'YYYY-MM-DD') EDU_DT
+                   , E.EDU_CD
+                   , C.COMN_NM EDU_NM
+                   , E.EDU_SCR
+                   , E.INCG_EMP_NO
+                   , EE.EMP_NM INCG_EMP_NM
+                   , E.PASS_YN
+                   , E.MEMO
+                   , E.EDU_ORG_NM
+                 <isEqual property="pTabDvs" compareValue="tot">
+                   , ROW_NUMBER() OVER(ORDER BY EDU_SEQ DESC) SEQ_DVS
+                 </isEqual>
+                FROM CM_EMP_EDU_HST E
+                   , CM_COMN_CD     C
+                   , V_EMP_MST      EE
+               WHERE E.HSP_CD = #pHspCd#
+                 AND E.EMP_NO = #pEmpNo#
+              <isNotEqual property="pSeqNo" compareValue="0">
+                 AND E.EDU_SEQ = #pSeqNo#      
+              </isNotEqual>
+                 AND C.HSP_CD = #pHspCd#
+                 AND C.DVS_CD = 'UT526'
+                 AND E.EDU_CD = C.COMN_CD
+                 AND EE.HSP_CD = #pHspCd#
+                 AND E.INCG_EMP_NO = EE.EMP_NO
+      <isEqual property="pTabDvs" compareValue="tot">
+             ) A
+       WHERE SEQ_DVS <![CDATA[ <= ]]> 3
+      </isEqual>
+    </select>
+    
+    <!--
+    Description : Select list of evaluation
+    Written By : Danbi Seo
+    Date Written : 2016.06.24
+    
+    -->
+    <select id="SelEvltList" parameterClass="INCU05Ent">      
+      <isEqual property="pTabDvs" compareValue="tot">
+      SELECT A.*
+        FROM (
+      </isEqual>
+              SELECT EVLT_SEQ
+                   , TO_CHAR(TO_DATE(EVLT_DT,'YYYYMMDD'),'YYYY-MM-DD') EVLT_DT
+                   , RNK
+                   , TOT_CNT
+                   , PSTN_RNK
+                   , PSTN_CNT
+                   , TOT_SCR
+                   , PSTN_AVG_SCR
+                   , EVLT_SCR1
+                   , EVLT_SCR2
+                   , EVLT_SCR3
+                   , EVLT_SCR4
+                   , EVLT_SCR5
+                   , EVLT_SCR6
+                   , EVLT_SCR7
+                 <isEqual property="pTabDvs" compareValue="tot">
+                   , ROW_NUMBER() OVER(ORDER BY EVLT_SEQ DESC) SEQ_DVS
+                 </isEqual>
+                FROM CM_EMP_EVLT_HST
+               WHERE HSP_CD = #pHspCd#
+                 AND EMP_NO = #pEmpNo#
+              <isNotEqual property="pSeqNo" compareValue="0">
+                 AND EVLT_SEQ = #pSeqNo#      
+              </isNotEqual>
+      <isEqual property="pTabDvs" compareValue="tot">
+             ) A
+       WHERE SEQ_DVS <![CDATA[ <= ]]> 2
+      </isEqual>
+    </select>
+    
+    <!--
+    Description : Select list of consulting history
+    Written By : Danbi Seo
+    Date Written : 2016.06.24
+    
+    -->
+    <select id="SelCnslList" parameterClass="INCU05Ent">
+      SELECT C.CNSL_SEQ
+           , TO_CHAR(TO_DATE(C.CNSL_DT,'YYYYMMDD'),'YYYY-MM-DD') CNSL_DT
+           , C.CNSL_EMP_NO
+           , E.EMP_NM CNSL_EMP_NM
+           , C.CNSL_RSN
+           , CC.COMN_NM CNSL_RSN_NM
+           , C.CNSL_CNTE
+        FROM CM_EMP_CNSL_HST C
+           , V_EMP_MST       E
+           , CM_COMN_CD     CC
+       WHERE C.HSP_CD = #pHspCd#
+         AND C.EMP_NO = #pEmpNo#
+       <isNotEqual property="pSeqNo" compareValue="0">
+         AND C.CNSL_SEQ = #pSeqNo#      
+      </isNotEqual>
+         AND E.HSP_CD = #pHspCd#
+         AND C.CNSL_EMP_NO = E.EMP_NO
+         AND CC.HSP_CD = #pHspCd#
+         AND CC.DVS_CD = 'UT527'
+         AND C.CNSL_RSN = CC.COMN_CD
+       ORDER BY C.CNSL_SEQ DESC
+    </select>
+
+
+<!--
+    Description : Select list of compliment history
+    Written By : Danbi Seo
+    Date Written : 2016.04.29
+    
+    -->
+    <select id="SelPrsList" parameterClass="INCU05Ent">
+      SELECT P.PRS_SEQ
+           , TO_CHAR(TO_DATE(P.PRS_DT,'YYYYMMDD'),'YYYY-MM-DD') PRS_DT
+           , P.PRS_EMP_NO
+           , E.EMP_NM  AS PRS_EMP_NM
+           , P.PRS_CNTE
+        FROM CM_EMP_PRS_HST P
+           , V_EMP_MST       E
+       WHERE P.HSP_CD = #pHspCd#
+         AND P.EMP_NO = #pEmpNo#
+       <isNotEqual property="pSeqNo" compareValue="0">
+         AND P.PRS_SEQ = #pSeqNo#      
+      </isNotEqual>
+         AND E.HSP_CD     = #pHspCd#
+         AND P.PRS_EMP_NO = E.EMP_NO
+       ORDER BY P.PRS_SEQ DESC
+    </select>
+
+
+    
+    <!--
+    Description : Max seq of exam history
+    Written By : Danbi Seo
+    Date Written : 2016.06.25
+    
+    -->
+    <select id="SelMaxExamSeq" parameterClass="INCU05Ent">
+      SELECT NVL(MAX(DISTINCT EDU_SEQ),0) + 1
+        FROM CM_EMP_EDU_HST
+       WHERE HSP_CD      = #cboHspCd#
+         AND EMP_NO      = #pEmpNo#
+    </select>
+
+    <!--
+    Description : Insert exam history
+    Written By : Danbi Seo
+    Date Written : 2016.06.25
+    
+    -->
+    <update id="InsExam" parameterClass="INCU05Ent">
+      INSERT INTO CM_EMP_EDU_HST
+           ( HSP_CD
+           , EMP_NO
+           , EDU_DVS
+           , EDU_SEQ
+           , EDU_DT
+           , EDU_CD
+           , INCG_EMP_NO
+           , EDU_ORG_NM
+           , EDU_SCR
+           , PASS_YN
+           , MEMO
+           , INPT_EMP_NO
+           , INPT_IP
+           , INPT_DTM
+           )
+      VALUES 
+           ( #cboHspCd#
+           , #pEmpNo#
+           , 'T'
+           , #txtExamSeq#
+           , #txtExamDt#
+           , #cboExamCd#
+           , #hdnIncgEmpNo#
+           , #txtExamOrgNm#
+           , #txtExamScr#
+           , #rdoPassYN#
+           , #txaMemo#
+           , #sesLoginEmpNo#
+           , #userIP#
+           , SYSDATE           
+           )      
+    </update>
+
+    <!--
+    Description : Update exam history
+    Written By : Danbi Seo
+    Date Written : 2016.06.25
+    
+    -->
+    <update id="UpdExam" parameterClass="INCU05Ent">
+      UPDATE CM_EMP_EDU_HST
+         SET EDU_DT      = #txtExamDt#
+           , EDU_CD      = #cboExamCd#
+           , INCG_EMP_NO = #hdnIncgEmpNo#
+           , EDU_ORG_NM  = #txtExamOrgNm#
+           , EDU_SCR     = #txtExamScr#
+           , PASS_YN     = #rdoPassYN#
+           , MEMO        = #txaMemo#
+           , MDF_EMP_NO  = #sesLoginEmpNo#
+           , MDF_IP      = #userIP#
+           , MDF_DTM     = SYSDATE
+       WHERE HSP_CD      = #cboHspCd#
+         AND EMP_NO      = #pEmpNo#
+         AND EDU_SEQ     = #txtExamSeq#
+    </update>
+
+    <!--
+    Description : Delete exam history
+    Written By : Danbi Seo
+    Date Written : 2016.06.25
+    
+    -->
+    <update id="DelExam" parameterClass="INCU05Ent">
+      DELETE CM_EMP_EDU_HST
+       WHERE HSP_CD      = #cboHspCd#
+         AND EMP_NO      = #pEmpNo#
+         AND EDU_SEQ     = #txtExamSeq#
+    </update>
+
+    <!--
+    Description : Max seq of consulting history
+    Written By : Danbi Seo
+    Date Written : 2016.06.25
+    
+    -->
+    <select id="SelMaxCnslSeq" parameterClass="INCU05Ent">
+      SELECT NVL(MAX(DISTINCT CNSL_SEQ),0) + 1
+        FROM CM_EMP_CNSL_HST
+       WHERE HSP_CD      = #cboHspCd#
+         AND EMP_NO      = #pEmpNo#
+    </select>
+    
+    <!--
+    Description : Insert/Update/Delete consulting history
+    Written By : Danbi Seo
+    Date Written : 2016.06.25
+    
+    -->
+    <update id="InsCnsl" parameterClass="INCU05Ent">
+      INSERT INTO CM_EMP_CNSL_HST
+           ( HSP_CD
+           , EMP_NO
+           , CNSL_SEQ
+           , CNSL_DT
+           , CNSL_EMP_NO
+           , CNSL_RSN
+           , CNSL_CNTE
+           , INPT_EMP_NO
+           , INPT_IP
+           , INPT_DTM
+           )
+      VALUES 
+           ( #cboHspCd#
+           , #pEmpNo#
+           , #txtCnslSeq#
+           , #txtCnslDt#
+           , #hdnCnslEmpNo#
+           , #cboCnslRsn#
+           , #txaCnslCnte#
+           , #sesLoginEmpNo#
+           , #userIP#
+           , SYSDATE            
+           )
+    </update>
+
+    <update id="UpdCnsl" parameterClass="INCU05Ent">
+      UPDATE CM_EMP_CNSL_HST
+         SET CNSL_DT     = #txtCnslDt#
+           , CNSL_EMP_NO = #hdnCnslEmpNo#
+           , CNSL_RSN    = #cboCnslRsn#
+           , CNSL_CNTE   = #txaCnslCnte#
+           , MDF_EMP_NO  = #sesLoginEmpNo#
+           , MDF_IP      = #userIP#
+           , MDF_DTM     = SYSDATE
+       WHERE HSP_CD      = #cboHspCd#
+         AND EMP_NO      = #pEmpNo#
+         AND CNSL_SEQ    = #txtCnslSeq#
+    </update>
+
+    <update id="DelCnsl" parameterClass="INCU05Ent">
+      DELETE CM_EMP_CNSL_HST
+       WHERE HSP_CD      = #cboHspCd#
+         AND EMP_NO      = #pEmpNo#
+         AND CNSL_SEQ    = #txtCnslSeq#
+    </update>
+    
+
+ <!--
+    Description :  Max seq of compliment history
+    Written By : Danbi Seo
+    Date Written : 2016.04.29
+    
+    -->
+    <select id="SelMaxPrsSeq" parameterClass="INCU05Ent">
+      SELECT NVL(MAX(DISTINCT PRS_SEQ),0) + 1
+        FROM CM_EMP_PRS_HST
+       WHERE HSP_CD      = #cboHspCd#
+         AND EMP_NO      = #pEmpNo#
+    </select>
+
+
+  <!--
+    Description : Insert/Update/Delete compliment history
+    Written By : Danbi Seo
+    Date Written : 2016.04.29
+    
+    -->
+    <update id="InsPrs" parameterClass="INCU05Ent">
+      INSERT INTO CM_EMP_PRS_HST
+           ( HSP_CD
+           , EMP_NO
+           , PRS_SEQ
+           , PRS_DT
+           , PRS_EMP_NO
+           , PRS_CNTE
+           , INPT_EMP_NO
+           , INPT_IP
+           , INPT_DTM
+           )
+      VALUES 
+           ( #cboHspCd#
+           , #pEmpNo#
+           , #txtPrsSeq#
+           , #txtPrsDt#
+           , #hdnPrsEmpNo#
+           , #txaPrsCnte#
+           , #sesLoginEmpNo#
+           , #userIP#
+           , SYSDATE            
+           )
+    </update>
+
+    <update id="UpdPrs" parameterClass="INCU05Ent">
+      UPDATE CM_EMP_PRS_HST
+         SET PRS_DT      = #txtPrsDt#
+           , PRS_EMP_NO  = #hdnPrsEmpNo#
+           , PRS_CNTE    = #txaPrsCnte#
+           , MDF_EMP_NO  = #sesLoginEmpNo#
+           , MDF_IP      = #userIP#
+           , MDF_DTM     = SYSDATE
+       WHERE HSP_CD      = #cboHspCd#
+         AND EMP_NO      = #pEmpNo#
+         AND PRS_SEQ     = #txtPrsSeq#
+    </update>
+
+    <update id="DelPrs" parameterClass="INCU05Ent">
+      DELETE CM_EMP_PRS_HST
+       WHERE HSP_CD  = #cboHspCd#
+         AND EMP_NO  = #pEmpNo#
+         AND PRS_SEQ = #txtPrsSeq#
+    </update>
+
+
+
+    <!--
+    Description : When inserting initial data to employees master table, re-execute a history procedure 
+    Written By : Danbi Seo
+    Date Written : 2016.09.17
+    
+    -->
+    <procedure id="PrcPpCmEmpHst" parameterMap="prParams"  resultClass="System.Int32">
+      <![CDATA[
+      NMHI_CRM.PR_CM_EMP_HST
+      ]]>
+    </procedure>
+  </statements>
+
+
+  <parameterMaps>
+    <parameterMap id="prParams">
+      <parameter property="pCond1"      column="JG_GROUP_IN"      direction="Input" />
+      <parameter property="pCond1"      column="JB_JOB_IN"        direction="Input" />
+      <parameter property="pCond1"      column="JS_NO_IN"         direction="Input" />
+      <parameter property="pCond1"      column="JS_RUNTYPE_IN"    direction="Input" />
+      <parameter property="pCond1"      column="JL_JOBNAME_IN"    direction="Input" />
+      <parameter property="pCond1"      column="JL_TABLENAME_IN"  direction="Input" />
+      <parameter property="pStdDt"      column="VS_SDATE_IN"      direction="Input" />
+      <parameter property="pCond1"      column="VS_EDATE_IN"      direction="Input" />
+      <parameter property="pCond1"      column="VS_TEXT"          direction="Input" />      
+    </parameterMap>
+  </parameterMaps>
+
+</sqlMap>

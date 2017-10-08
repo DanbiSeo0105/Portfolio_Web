@@ -1,0 +1,70 @@
+﻿@{    
+    DataTable dt = ViewBag.dt;
+
+
+    NMHI.Models.Domain.INTRA.INCU05Ent ent = ViewBag.ent;
+    
+}
+<h3 class="bottom_line">History of employee information</h3>
+<table class="tbl_list div_tbl">
+    <colgroup>
+        <col style="width:90px;" /> <!-- Date -->
+        <col style="width:70px;" /> <!-- Hospital -->
+        <col style="width:70px;" /> <!-- Department -->
+        <col style="width:100px;" /> <!-- Occupation -->
+        <col style="width:100px;" /> <!-- Position -->
+        <col style="width:100px;" /> <!-- Duty -->
+        <col style="width:auto" />  <!-- Status -->
+    </colgroup>
+    <thead>
+        <tr>
+            <th class="t_center">Date</th>
+            <th class="t_center">Hospital</th>
+            <th class="t_center">Department</th>
+            <th class="t_center">Occupation</th>
+            <th class="t_center">Position</th>
+            <th class="t_center">Duty</th>
+            <th class="t_center">Status</th>
+        </tr>
+    </thead>
+</table>
+<div class="div_tbl_scroll" style="height:100px">
+<table id="tblList" class="tbl_list" >
+    <colgroup>
+        <col style="width:90px;" /> <!-- Date -->
+        <col style="width:70px;" /> <!-- Hospital -->
+        <col style="width:70px;" /> <!-- Department -->
+        <col style="width:100px;" /> <!-- Occupation -->
+        <col style="width:100px;" /> <!-- Position -->
+        <col style="width:100px;" /> <!-- Duty -->
+        <col style="width:auto" />  <!-- Status -->
+    </colgroup>
+    <tbody>
+    @foreach (DataRow row in dt.Rows)
+    {                  
+        <tr id="@string.Format("tr_{0}_{1}_{2}", row["HSP_CD"], row["EMP_NO"], row["STD_DT"])"
+            onclick="fncDetail('@row["HSP_CD"]', '@row["EMP_NO"]', '@row["STD_DT"]', this);" style="cursor:pointer;" >      
+            <td class="t_center">@row["STD_DT_NM"]</td>
+            <td class="t_center cut">@row["HSP_NM"]</td>
+            <td class="t_center cut">@row["DEPT_NM"]</td>
+            <td class="t_center cut">@row["OCGR_NM"]</td>
+            <td class="t_center cut">@row["PSTN_NM"]</td>
+            <td class="t_center cut">@row["OCRS_NM"]</td>
+            <td class="t_center cut ">@row["WRK_STAT_NM"]</td>
+        </tr>
+    }      
+    @for (int i = dt.Rows.Count; i < 3; i++)
+    {
+        <tr>      
+            <td class="t_center"></td>
+            <td class="t_center"></td>   
+            <td class="t_center"></td>
+            <td class="t_center"></td>
+            <td class="t_center"></td>
+            <td class="t_center"></td>
+            <td class="t_center"></td>
+        </tr>
+    } 
+    </tbody>
+</table>   
+</div>

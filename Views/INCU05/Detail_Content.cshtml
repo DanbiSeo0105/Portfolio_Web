@@ -1,0 +1,203 @@
+﻿@{
+    NMHI.Models.Domain.INTRA.INCU05Ent ent = ViewBag.ent;
+    DataRow dr = ViewBag.dr;
+
+    string strMode = "I";
+    string strHspCd = string.Empty, strEmpNo = string.Empty, strEmpNm = string.Empty, strStdDt = string.Empty
+         , strDeptCd = string.Empty, strDeptNm = string.Empty, strRealDeptCd = string.Empty, strRealDeptNm = string.Empty
+         , strOctyCd = string.Empty, strPstnCd = string.Empty, strOcgrCd = string.Empty, strOcrsCd = string.Empty
+         , strInPrdYmd = string.Empty, strOutPrdYmd = string.Empty, strWrkSt = string.Empty, strBrdyDt = string.Empty
+         , strBrdyDvs = string.Empty, strSsno1 = string.Empty, strSsno2 = string.Empty, strZipCd = string.Empty
+         , strAddr = string.Empty, strEmail = string.Empty, strExtsNo = string.Empty, strTelNo = string.Empty, strCPhn = string.Empty, strSign = string.Empty, strPto = string.Empty;
+
+    if (dr != null)
+    {
+        strMode = "U";
+        strHspCd = dr["HSP_CD"].ToString();
+        strEmpNo = dr["EMP_NO"].ToString();
+        strEmpNm = dr["EMP_NM"].ToString();
+
+        strStdDt = dr["STD_DT"].ToString().Substring(0, 4) + "-" + dr["STD_DT"].ToString().Substring(4, 2) + "-" + dr["STD_DT"].ToString().Substring(6, 2);
+        strDeptCd = dr["DEPT_CD"].ToString();
+        strDeptNm = dr["DEPT_NM"].ToString();
+        strRealDeptCd = dr["REAL_DEPT_CD"].ToString();
+        strRealDeptNm = dr["REAL_DEPT_NM"].ToString();
+
+        strOcgrCd = dr["OCGR_CD"].ToString();
+        //strOctyCd = dr["OCTY_CD"].ToString();
+        strPstnCd = dr["PSTN_CD"].ToString();
+        strOcrsCd = dr["OCRS_CD"].ToString();
+
+        if (dr["JICP_DT"].ToString() != "")
+        {
+            strInPrdYmd = dr["JICP_DT"].ToString().Substring(0, 4) + "-" + dr["JICP_DT"].ToString().Substring(4, 2) + "-" + dr["JICP_DT"].ToString().Substring(6, 2);
+        }
+
+        if (dr["LVCP_DT"].ToString() != "")
+        {
+            strOutPrdYmd = dr["LVCP_DT"].ToString().Substring(0, 4) + "-" + dr["LVCP_DT"].ToString().Substring(4, 2) + "-" + dr["LVCP_DT"].ToString().Substring(6, 2);
+        }
+
+        strWrkSt = dr["WRK_STAT_CD"].ToString();
+
+        if (dr["BRDY_DT"].ToString() != "")
+        {
+            strBrdyDt = dr["BRDY_DT"].ToString().Substring(0, 4) + "-" + dr["BRDY_DT"].ToString().Substring(4, 2) + "-" + dr["BRDY_DT"].ToString().Substring(6, 2);
+        }
+
+        strBrdyDvs = dr["BRDY_DVS"].ToString();
+
+        if (dr["SSNO"].ToString() != "")
+        {
+            strSsno1 = dr["SSNO"].ToString().Substring(0, 6); 
+            strSsno2 = dr["SSNO"].ToString().Substring(7, 1); 
+        }
+        strZipCd = dr["ZIP_CD"].ToString();
+        strAddr = dr["ADDR"].ToString();
+        strEmail = dr["EMAIL"].ToString();
+        strExtsNo = dr["EXTS_NO"].ToString();
+        strTelNo = dr["TEL_NO"].ToString();
+        strCPhn = dr["CLPH_NO"].ToString();
+        strSign = dr["SIGN_NM"].ToString();
+        strPto = dr["PTO_NM"].ToString();
+
+        }
+    }
+    <input type="hidden" id="hdnMode" name="hdnMode" value="@strMode"/>
+    <table class="tbl_input">
+        <colgroup>
+            <col style="width:150px" /> <!--사진-->
+            <col style="width:95px" />
+            <col style="width:140px" />
+            <col style="width:95px" />
+            <col style="width:auto" />
+        </colgroup>
+        <tr>
+            <td rowspan="12">
+                <div style="height:185px">
+                @if (strPto=="") {
+                    <p style="color:#797979;text-align:center; line-height:180px">Please upload a photo.</p>
+                }
+                else
+                {
+                    <input type="hidden" id="hdnPto" name="hdnPto" value="@strPto" />
+                    <img src="/Content/emp_photo/photo/@strPto" style="display:inline;width:140px;height:170px;"/> 
+                }
+                </div>
+                <input type ="file" id ="flePto" name ="flePto" style="width:100%"/>
+            </td>
+            <th><span class="red">*</span>Employee ID</th>
+            <td><input type="text" class="disabled" id="pEmpNo" name="pEmpNo" maxlength="12" style="ime-mode:disabled" value="@strEmpNo"/></td>
+            <th><span class="red">*</span>Date</th>
+            <td>
+                <input type="text" id="pStdDt" name="pStdDt" value="@strStdDt" class="t_center datepicker strStdDt" maxlength="10" style="width:105px; ime-mode:disabled" onkeydown="fncIncKeyEvent('strStdDt');" />                       
+            </td>
+        </tr>
+        <tr>    
+            <th><span class="red">*</span>Name</th>
+            <td><input type="text" id="txtEmpNm" name="txtEmpNm" maxlength="8" style="ime-mode:active" onkeypress="f_imeControl('NOT_SPC');" value="@strEmpNm"/></td>            
+            
+            <th><label for="cboHspCd"><span class="red">*</span>Hospital</label></th>
+            <td>@Inc.select_com_admin("MC001", "cboHspCd", strHspCd, true)</td>
+        </tr>
+        <tr>            
+            <th>SIN number</th>
+            <td>
+                <input type="hidden" id="txtssno" name="txtssno" value="" />
+                <input type="text" id="txtSsno1" name="txtSsno1" maxlength="6" style="width:87px;ime-mode:disabled;" onkeypress="f_imeControl('NUM');" value="@strSsno1"/>&nbsp;-&nbsp;
+                <input type="text" id="txtSsno2" name="txtSsno2" maxlength="1" style="padding:0;text-align:center;width:20px;ime-mode:disabled" onkeypress="f_imeControl('NUM');" value="@strSsno2"/>
+            </td>            
+            <th><label for="cboWrkSt">Status</label></th>
+            <td>@Inc.select_com_admin("MI005", "cboWrkSt", strWrkSt, false)</td>
+        </tr>         
+        <tr>
+            <th>Date of birth</th>
+            <td colspan="3">
+                <span>
+                      <input type="text" id="pBrdy" name="pBrdy" value="@strBrdyDt" class="t_center datepicker strBrdyDt datepicker_brdy" maxlength="10" style="width:105px; ime-mode:disabled" onkeydown="fncIncKeyEvent('strBrdyDt');" />                       
+                </span>
+                <span style="margin-left:8px;">
+                    <input type="radio" id="rdoBrdyDvs1" name="rdoBrdyDvs" value="S" @(strBrdyDvs == "S" ? "checked" : "")/> <label for="rdoBrdyDvs1">Solar calender</label>&nbsp;
+                    <input type="radio" id="rdoBrdyDvs2" name="rdoBrdyDvs" value="L" @(strBrdyDvs == "L" ? "checked" : "")/> <label for="rdoBrdyDvs2">Lunar calender</label>  
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th>Date of hired</th>
+            <td>
+                <input type="text" id="InPrdYmd" name="InPrdYmd" value="@strInPrdYmd" class="t_center datepicker strInPrdYmd" maxlength="10" style="width:105px;ime-mode:disabled" onkeydown="fncIncKeyEvent('strInPrdYmd');" />         
+            </td>
+            <th>Date of resign</th>
+            <td>
+                <input type="text" id="OutPrdYmd" name="OutPrdYmd" value="@strOutPrdYmd" class="t_center datepicker strOutPrdYmd" maxlength="10" style="width:105px; ime-mode:disabled" onkeydown="fncIncKeyEvent('strOutPrdYmd');" />         
+            </td>
+        </tr>           
+        <tr>
+            <th>Actual department</th>
+            <td> 
+                    <input type="hidden" id="hdnRealDeptCd" name="hdnRealDeptCd" class="realdept" value="@strRealDeptCd"  />
+                    <input type="text" id="pRealDeptNm" name="pRealDeptNm" class="realdept" maxlength="50" style="width:82px; ime-mode:disabled" onkeydown="fncIncKeyEvent('realdept');" value="@strRealDeptNm" />
+                    <img id="btnRealDeptCd" src="/Content/images/button/btn_find.png" class="" alt="Choose department" onclick="fncDeptPopOpen('hdnRealDeptCd', 'pRealDeptNm','','','M')" style="height:28px;margin-bottom:2px; cursor:pointer" />
+                
+            </td>
+            <th>Department</th>
+            <td> 
+                    <input type="hidden" id="hdnDeptCd" name="hdnDeptCd" class="dept" value="@strDeptCd"  />
+                    <input type="text" id="pDeptNm" name="pDeptNm" class="dept" maxlength="50" style="width:82px; ime-mode:disabled" onkeydown="fncIncKeyEvent('dept');" value="@strDeptNm" />
+                    <img id="btnpDeptCd" src="/Content/images/button/btn_find.png" class="" alt="Choose department" onclick="fncDeptPopOpen('hdnDeptCd', 'pDeptNm','','','M')" style="height:28px;margin-bottom:2px; cursor:pointer" />
+                
+            </td>
+        </tr>        
+        <tr>
+            <th><label for="cboPstnCd">Position</label></th>
+            <td>@Inc.select_com_admin("MI003", "cboPstnCd", strPstnCd, true)</td>                
+            <th><label for="cboOcrsCd">Duty</label></th>
+            <td>@Inc.select_com_admin("MI004", "cboOcrsCd", strOcrsCd, true)</td>        
+        </tr>
+        <tr>
+            <th><label for="cboOcgrCd">Occupation</label></th>
+            <td>@Inc.select_com_admin("MI001", "cboOcgrCd", strOcgrCd, true)</td>              
+            <th>Emergency call1</th>
+            <td><input type="text" id="txtExtsNo" name="txtExtsNo" maxlength="13" style="ime-mode:disabled" onkeypress="f_imeControl('TEL');" value="@strExtsNo"/></td>
+        </tr>    
+        <tr> 
+            <th>Telephone</th>
+            <td>
+                <input type="text" id="txtCPhn" name="txtCPhn" maxlength="13" style="ime-mode:disabled" onkeypress="f_imeControl('TEL');" value="@strCPhn"/>
+            </td>
+            <th>Emergency call2</th>
+            <td><input type="text" id="txtTelNo" name="txtTelNo" maxlength="13" style="ime-mode:disabled" onkeypress="f_imeControl('TEL');" value="@strTelNo"/></td>
+        </tr>
+        <tr>
+            <th>E-mail</th>
+            <td colspan="3"><input type="text" id="txtEmail" name="txtEmail" maxlength="30" style="ime-mode:disabled" value="@strEmail"/></td>
+        </tr>
+        <tr>
+            <th>Postal code</th>
+            <td>
+                <input type="text" id="txtZipCd" name="txtZipCd" class="disabled" maxlength="7" style="ime-mode:disabled;width:131px" onkeypress="f_imeControl('TEL');" value="@strZipCd" readonly/>
+            </td>
+            <td colspan="2"><p class="button button4" style="display:inline-block" onclick="fncDaumPostcode('txtAddr','txtZipCd')">Postal code</p></td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td colspan="3"><input type="text" id="txtAddr" name="txtAddr" maxlength="200" style="ime-mode:active" value="@strAddr"/></td>
+        </tr>
+    </table>
+
+    <button id = "btnDel" class="button button4 right" onclick = "fncDel(); return false;" style="margin-left:2px;">
+        <img src="/Content/images/icon/icon_del.jpg" alt="Delete" style="margin-left:5px;"/>
+        Delete
+    </button>
+    <button class="button button4 right" onclick = "fncSave(); return false;" style="margin-left:2px;">
+        <img src="/Content/images/icon/icon_write.jpg" alt="Update" />
+        Update
+    </button>
+    <button id = "btnHst" class="button button4 right" onclick = "fncInstHst(); return false;" style="margin-left:2px;">
+        <img src="/Content/images/icon/icon_write.jpg" alt="Add" style="margin-left:5px;"/>
+        Add
+    </button>
+    <button class="button button4 left" onclick = "fncGoMain(); return false;" >
+        <img src="/Content/images/icon/icon_list_s.jpg" alt="List" />
+        List
+    </button>

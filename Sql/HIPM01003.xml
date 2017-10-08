@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <!--
-[HIMS] 진료실적 > 일간수술별실적 / 월간시술별실적
+[HIMS] Record of treatment > Daily Operating Records / Monthly Operating Records
 -->
 <sqlMap namespace="HIPM01003"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -9,13 +9,9 @@
 
   <statements>
     <!--
-    설  명 : 개인별 지표실적 조회
-    작성자 : 서단비
-    작성일 : 2015.06.15
-    
-    내  용 : 
-    수정자 : 
-    수정일 : 
+    Description : Doctor's individual records based on the index
+    Written By : Danbi Seo
+    Date Written : 2016.04.15
     -->
     <select id="SelEmpList" parameterClass="ComnEnt">
       WITH TBL AS (
@@ -217,7 +213,7 @@
           </isEqual>
             )
        SELECT DECODE(R.EMP_NO,'-','9999999', NVL(R.EMP_NO,'00000')) AS EMP_NO
-            , DECODE(R.EMP_NO,'-','공통의',NVL(E.EMP_NM,'합  계')) AS EMP_NM
+            , DECODE(R.EMP_NO,'-','Etc',NVL(E.EMP_NM,'Total')) AS EMP_NM
             , SUM(DECODE(R.IND_SEQ, 1, R.RSLT, 0))  RSLT1
             , SUM(DECODE(R.IND_SEQ, 2, R.RSLT, 0))  RSLT2
             , SUM(DECODE(R.IND_SEQ, 3, R.RSLT, 0))  RSLT3
@@ -296,18 +292,15 @@
         GROUP BY 
               R.EMP_NO
             , DECODE(R.EMP_NO,'-','9999999', NVL(R.EMP_NO,'00000'))
-            , DECODE(R.EMP_NO,'-','공통의',NVL(E.EMP_NM,'합  계'))
+            , DECODE(R.EMP_NO,'-','Etc.',NVL(E.EMP_NM,'합  계'))
         ORDER BY DECODE(R.EMP_NO,'-','9999999', NVL(R.EMP_NO,'00000'))
     </select>
 
     <!--
-    설  명 : 지표별 의사실적 비교
-    작성자 : 서단비
-    작성일 : 2015.03.31
+    Description : Doctor's patient records based on the index
+    Written By : Danbi Seo
+    Date Written : 2016.01.31
     
-    내  용 : 
-    수정자 : 
-    수정일 : 
     -->
     <select id="SelDetail" parameterClass="ComnEnt">
         <isNotEqual property="pPrdDvsCd" compareValue="M">
@@ -321,9 +314,9 @@
                , SORT_SEQ    
             FROM (
                   SELECT R.PRD_YMD
-                       , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                       , REPLACE(REPLACE(M.IND_NM,'Income',''),'Medical charge','') AS IND_NM
                        , R.IND_CD
-                       , NVL(E.EMP_NM,'공통의') AS EMP_NM
+                       , NVL(E.EMP_NM,'Etc.') AS EMP_NM
                        , DECODE(R.EMP_NO,'-','9999999',R.EMP_NO) AS EMP_NO
                        , M.FMT
                        , DECODE(M.SUM_DVS, 'S', SUM(R.TDD_RSLT)
@@ -373,9 +366,9 @@
                        , M.FMT
                    UNION ALL
                   SELECT R.PRD_YMD
-                       , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                       , REPLACE(REPLACE(M.IND_NM,'Income',''),'Medical charge','') AS IND_NM
                        , R.IND_CD
-                       , NVL(E.EMP_NM,'공통의') AS EMP_NM
+                       , NVL(E.EMP_NM,'Etc.') AS EMP_NM
                        , DECODE(E.EMP_NO,'-','9999999',E.EMP_NO) AS EMP_NO
                        , M.FMT
                        , 0 TDD_RSLT  
@@ -439,7 +432,7 @@
                        , M.FMT
                    UNION ALL
                    SELECT R.PRD_YMD
-                       , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                       , REPLACE(REPLACE(M.IND_NM,'Income',''),'Medical charge','') AS IND_NM
                        , R.IND_CD
                        , '공통의' AS EMP_NM
                        , '9999999' AS EMP_NO
@@ -495,9 +488,9 @@
                 , SORT_SEQ 
               FROM (
                   SELECT R.PRD_YM
-                        , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                        , REPLACE(REPLACE(M.IND_NM,'Income',''),'Medical charge','') AS IND_NM
                         , R.IND_CD
-                        , NVL(E.EMP_NM,'공통의') AS EMP_NM
+                        , NVL(E.EMP_NM,'Etc.') AS EMP_NM
                         , DECODE(R.EMP_NO,'-','9999999',R.EMP_NO) AS EMP_NO
                         , M.FMT
                         , DECODE(M.SUM_DVS, 'S', SUM(R.TMM_RSLT)
@@ -546,9 +539,9 @@
                         , M.FMT                 
                     UNION ALL
                    SELECT R.PRD_YM
-                        , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                        , REPLACE(REPLACE(M.IND_NM,'Income',''),'Medical charge','') AS IND_NM
                         , R.IND_CD
-                        , NVL(E.EMP_NM,'공통의') AS EMP_NM
+                        , NVL(E.EMP_NM,'Etc.') AS EMP_NM
                         , DECODE(E.EMP_NO,'-','9999999',E.EMP_NO) AS EMP_NO
                         , M.FMT
                         , 0  TMM_RSLT
@@ -611,7 +604,7 @@
                         , M.FMT
                     UNION ALL
                   SELECT R.PRD_YM
-                        , REPLACE(REPLACE(M.IND_NM,'수익',''),'수가','') AS IND_NM
+                        , REPLACE(REPLACE(M.IND_NM,'Income',''),'Medical charge','') AS IND_NM
                         , R.IND_CD
                         , '공통의'     AS EMP_NM
                         , '9999999'    AS EMP_NO
@@ -657,13 +650,10 @@
     </select>
 
  <!--
-    설  명 : 지표 실적 추세 목록(의사별)
-    작성자 : 서단비
-    작성일 : 2015.06.29
+    Description : List of record based on the index (based on doctor)
+    Written By : Danbi Seo
+    Date Written : 2016.04.29
     
-    내  용 : 
-    수정자 : 
-    수정일 : 
     -->
     <select id="SelIndPscdList" parameterClass="ComnEnt">
       <isNotEqual property="pPrdDvsCd" compareValue="M">
@@ -810,18 +800,11 @@
       </isEqual>
     </select>
 
-
-
-
-
 <!--
-    설  명 : 병원평균, 개인 실적 추세(일요일 제외)
-    작성자 : 서단비
-    작성일 : 2015.08.05
+    Description : Aveage record of hospital and individual doctor(except Sunday)
+    Written By : Danbi Seo
+    Date Written : 2016.06.05
     
-    내  용 : 
-    수정자 : 
-    수정일 : 
     -->
     <select id="SelIndEmpWithAvgPscdList" parameterClass="ComnEnt">
       <isEqual property="pPrdDvsCd" compareValue="D">

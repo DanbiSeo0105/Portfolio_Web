@@ -1,0 +1,91 @@
+﻿@{    
+    DataTable dt = ViewBag.dt;
+
+    int intRowCnt = 0;
+
+    NMHI.Models.Domain.INTRA.INCU05Ent ent = ViewBag.ent;
+    ViewBag.Title = "List";
+
+    DataRow dr = ViewBag.dr;
+    string strBdayM = string.Empty, strBdayD = string.Empty, strJicpDt = string.Empty;
+
+}
+        <table id="tblList" class="tbl_list div_tbl">    
+            <colgroup>
+                <col style="width:100px" /> <!-- Name of employee -->
+                <col style="width:110px" /> <!-- Hospital -->
+                <col style="width:110px" /> <!-- Date of hired -->
+                <col style="width:75px" /> <!-- Departemnt -->
+                <col style="width:75px" /> <!-- Occupation -->
+                <col style="width:75px" /> <!-- Position -->
+                <col style="width:110px" /> <!-- Duty -->
+                <col style="width:130px" /> <!-- Phone -->
+                <col style="width:100px" /> <!-- Birthday -->
+                <col style="width:auto" />  <!-- Email -->
+                <col style="width:75px"/><!--Details-->
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="rightline">Name of employee</th>
+                    <th class="rightline">Hospital</th>
+                    <th class="rightline">Date of hired</th>
+                    <th class="rightline">Departemnt</th>
+                    <th class="rightline">Occupation</th>
+                    <th class="rightline">Position</th>
+                    <th class="rightline">Duty</th>
+                    <th class="rightline">Phone</th>
+                    <th class="rightline">Birthday</th>
+                    <th class="rightline">Email</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+        
+            <tbody>
+            @foreach (DataRow row in dt.Rows)
+            {
+                strJicpDt = row["JICP_DT"].ToString();
+                strJicpDt = strJicpDt.Length >= 8 ? strJicpDt.Substring(0, 4) + "-" + strJicpDt.Substring(4, 2) + "-" + strJicpDt.Substring(6, 2) : "";
+                <tr>  
+                    <!-- <input type="hidden" id="@("hdnEmpNm_" + intRowCnt)" name="hdnEmpNm" value="@row["EMP_NM"]" /></td>    -->
+                    <td class="t_center rightline"><label for="@("chkEmpNo_" + intRowCnt)">@row["EMP_NM"]</label></td>   
+                    <td class="t_center rightline" >@row["HSP_NM"]</td>
+                    <td class="t_center rightline" >@strJicpDt</td>
+                    <td class="t_left cut rightline" >@row["REAL_DEPT_NM"]</td>
+                    <td class="t_left cut rightline" >@row["OCGR_NM"]</td>
+                    <td class="t_left cut rightline" >@row["PSTN_NM"]</td>
+                    <td class="t_left cut rightline" >@row["OCRS_NM"]</td>
+                <!--    <td class="t_center rightline" >@row["EXTS_NO"]</td> -->
+                    <td class="t_center rightline" >@row["CLPH_NO"]</td>
+                    <td class="t_center rightline" >@row["BRDY_DT"]</td>
+                    <td class="t_left rightline cut" >@row["EMAIL"]</td>
+                    <td class="t_center">@if(row["VIEW_CHK"].ToString() == "Y" || ent.pMngYn == "Y"){<a href="javascript:;" onclick="fncDetail('@row["HSP_CD"]', '@row["EMP_NO"]', '@row["STD_DT"]', '@row["REAL_DEPT_CD"]');" >Details</a>}</td>
+                </tr>
+                intRowCnt++;
+            }       
+            @for (int i = dt.Rows.Count; i < ent.page_sz; i++)
+            {
+                <tr>
+                    <td class="rightline"></td>
+                    <td class="rightline"></td>
+                    <td class="rightline"></td>
+                    <td class="rightline"></td>
+                    <td class="rightline"></td>
+                    <td class="rightline"></td>
+                    <td class="rightline"></td>
+                    <td class="rightline"></td>
+                    <td class="rightline"></td>
+                    <td class="rightline"></td>
+                    <td></td>
+                </tr>
+            }           
+            </tbody>
+        </table>      
+        @Inc.paging(ent.page_sz, ent.page, ent.tot, "fncList('{0}', '{1}')", "Persons")
+        
+        @if (ent.pInptYn == "Y")
+        {
+        <button class="button button4 right" onclick = "fncDetail(); return false;" style="margin-top:-25px">
+            <img src="/Content/images/icon/icon_write.jpg" alt="New" />
+            New
+        </button>
+        }

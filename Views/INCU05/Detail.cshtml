@@ -1,0 +1,627 @@
+﻿@using NMHI.Models.Domain.INTRA
+@{
+    ViewBag.Title = "Employee information";
+    INCU05Ent ent = ViewBag.ent;
+   
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    ViewBag.FormAttr = "enctype=\"multipart/form-data\"";//cal
+
+    DataRow dr = ViewBag.dr;
+	DataTable empList = ViewBag.empList;
+
+	//List of current employees number
+	if(empList.Rows.Count > 0)
+	{
+		string[] arrEmpNo = empList.AsEnumerable().Select(row => row.Field<string>("EMP_NO")).ToArray();
+		
+		for(int i = 0; i < empList.Rows.Count ; i ++){
+			ent.pCond4 = ent.pCond4 + ","+arrEmpNo[i];		
+		}
+	}
+
+    string ssno1 = string.Empty, ssno2 = string.Empty;
+
+    if (ent != null)
+    {
+        ssno1 = ent.HSP_CD;
+    }
+    //History for day off
+    DataRow drVct = ViewBag.drVct;
+    int intVct1 = 0, intVct2 = 0, intVct3 = 0, intVct4 = 0, intVct5 = 0, intVct6 = 0, intVct7 = 0, intVct8 = 0, intVct9 = 0,
+        intVct10 = 0, intVct11 = 0, intVct12 = 0;
+    if(drVct != null){
+        intVct1 = Convert.ToInt32(drVct["VCT_CNT"]);
+        intVct2 = Convert.ToInt32(drVct["VCT_USE_DYS"]);
+        intVct3 = Convert.ToInt32(drVct["VCT_NUSE_DYS"]);
+
+        intVct4 = Convert.ToInt32(drVct["VCT_USE_DYS_00"]);
+        intVct5 = Convert.ToInt32(drVct["VCT_USE_DYS_10"]);
+        intVct6 = Convert.ToInt32(drVct["VCT_USE_DYS_20"]);
+        intVct7 = Convert.ToInt32(drVct["VCT_USE_DYS_90"]);
+        intVct8 = Convert.ToInt32(drVct["VCT_USE_DYS_30"]);
+        intVct9 = Convert.ToInt32(drVct["VCT_USE_DYS_40"]);
+        intVct10 = Convert.ToInt32(drVct["VCT_USE_DYS_50"]);
+        intVct11 = Convert.ToInt32(drVct["VCT_USE_DYS_60"]);
+        intVct12 = Convert.ToInt32(drVct["VCT_USE_DYS_70"]);
+    }
+}
+@section Header {
+<script src="@Url.Content("~/Scripts/jquery.form.min.js")" type="text/javascript"></script>
+<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script> <!--Daum API-->
+<style type="text/css">
+    .tbl_input tr{height:31px;}
+    .tbl_list tr{height:33px;}      
+        
+    input[name=fleAtch] { width:280px !important }  
+    .button { margin-right:2px }
+    /* layout(S) */
+    .rr_sheader
+    {
+        overflow:hidden;
+        margin-bottom:10px;
+        border-left: 1px solid #a3e1f2;
+        border-bottom:1px solid #a3e1f2;
+    }
+    .rr_sheader > li  
+    {
+        width: 20% ;
+        border-right: 1px solid #a3e1f2
+    }
+    th.th2 { text-align:left }
+</style>
+ <script type="text/javascript">
+     $(function () {
+         fncHstList('@ent.pHspCd', '@ent.pEmpNo', '@ent.pStdDt');
+         if ($(".rr_sheader > li").length > 0) {
+             $(".rr_sheader > li").click(function () {
+                 $(".rr_sheader > li").removeClass("sel");
+                 $(this).addClass("sel");
+                 fncAddInfo('@ent.pHspCd', '@ent.pEmpNo', '@ent.pRealDeptCd', $(this).data().tab);
+                 $("#pTabDvs").val($(this).data().tab);
+             });
+
+             $(".rr_sheader > li:eq(0)").trigger("click");
+         }
+     });
+
+
+     //History of employees
+     function fncHstList(pHspCd, pEmpNo, pStdDt) {
+         $.ajax({ url: "/INCU05/HstList",
+             cache: false,
+             type: 'post',
+             data: {
+                 pHspCd: pHspCd,
+                 pEmpNo: pEmpNo,
+                 pStdDt: pStdDt
+             },
+             dataType: 'html',
+             success: function (data) {
+                 $("#divHstList").html(data);
+                 fncTable();
+                 if ($("#tr_" + pHspCd + "_" + pEmpNo + "_" + pStdDt).length > 0) {
+                     $("#tr_" + pHspCd + "_" + pEmpNo + "_" + pStdDt).trigger("click");
+                     /* } else if ($("#divHstList tbody tr").length > 0) {
+                     $("#divHstList tbody tr:eq(0)").trigger("click");*/
+                 } else {
+                     fncDetail('', '', '', null);
+                 }
+             },
+             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                 fncAjaxSessionExpired(XMLHttpRequest);
+                 fncDetail('', '', '', null);
+             }
+         });
+     }
+
+     //Details
+     function fncDetail(pHspCd, pEmpNo, pStdDt, obj) {
+         fncTableRowSelect("tblList", obj);
+         $.ajax({ url: "/INCU05/Detail_Content",
+             cache: false,
+             type: 'post',
+             dataType: 'html',
+             data: {
+                 pHspCd: pHspCd,
+                 pEmpNo: pEmpNo,
+                 pStdDt: pStdDt
+             },
+             success: function (data) {
+                 $("#divDetail").html(data);
+                 fncDatePicker();
+                 //Option change for birthday
+                 $(".datepicker_brdy").datepicker("option", "maxDate", new Date());
+                 $(".datepicker_brdy").datepicker("option", "minDate", '-100y');
+                 $(".datepicker_brdy").datepicker("option", "yearRange", 'c-50:c+10');
+
+                 if (pHspCd == "" && pEmpNo == "" && pStdDt == "") {
+                     $("#btnDel, #btnHst").hide();
+                     $("input[name=rdoBrdyDvs][value='S']").prop("checked", true);
+
+                     var today = new Date();
+                     var dd = today.getDate();
+                     var mm = today.getMonth() + 1;
+                     var yyyy = today.getFullYear();
+
+                     if (dd < 10) { dd = '0' + dd }
+                     if (mm < 10) { mm = '0' + mm }
+                     today = yyyy + "-" + mm + "-" + dd;
+
+                     $("#pStdDt").val(today);
+
+                     $("#pEmpNo").attr("readonly", false);
+                     $("#pEmpNo").removeClass("disabled");
+                 }
+             },
+             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                 fncAjaxSessionExpired(XMLHttpRequest);
+             }
+         });
+     }
+
+     //Extra information
+     function fncAddInfo(pHspCd, pEmpNo, pRealDeptCd, pTabDvs) {
+         $.ajax({ url: "/INCU05/AddInfo",
+             cache: false,
+             type: 'post',
+             data: {
+                 pHspCd: pHspCd,
+                 pEmpNo: pEmpNo,
+                 pRealDeptCd : pRealDeptCd,
+                 pTabDvs: pTabDvs
+             },
+             dataType: 'html',
+             success: function (data) {
+                 $("#rr_sbody").html(data);
+                 fncTable();
+                 fncDatePicker();
+             },
+             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                 fncAjaxSessionExpired(XMLHttpRequest);
+             }
+         });
+     }
+
+     //Add history
+     function fncInstHst() {
+
+         if (!confirm("Standard date will be changed to today.")) {
+             return;
+         }
+
+         var today = new Date();
+         var dd = today.getDate();
+         var mm = today.getMonth() + 1; //January is 0
+         var yyyy = today.getFullYear();
+
+         if (dd < 10) { dd = '0' + dd }
+         if (mm < 10) { mm = '0' + mm }
+         today = yyyy + mm + dd;
+
+         $("#hdnMode").val("H");
+         $("#pStdDt").val(today);
+
+         fncSave();
+     }
+
+     //Insert/Update
+     function fncSave() {
+
+     	var strMode = $("#hdnMode").val();
+
+		//Check duplicated employee number
+     	if ($("#pEmpNo").val() != "" && strMode == "I") {
+     		
+     		var strEmpNo = $("#pEmpNo").val();
+     		var strEmpList = '@ent.pCond4';
+     		var arrEmpList = strEmpList.substring(1).split(",");          		
+
+			for(var i=0, item; item=arrEmpList[i]; i++) {
+				if(strEmpNo == arrEmpList[i].toString()){
+					alert("Typed employee number already exists");
+					return;
+				}
+			}			
+     	}
+     	
+         if ($("#pEmpNo").val() == "") {
+             alert("Please type employee ID");
+             $("#pEmpNo").focus();
+             return;
+         } else if ($("#pStdDt").val() == "") {
+             alert("Please choose standard date");
+             return;
+         } else if ($("#txtEmpNm").val() == "") {
+             alert("Please type the name of employee");
+             return;
+         } else if ($("#cboHspCd").val() == "") {
+             alert("Please choose a hospital");
+             return;
+         } 
+
+         if ($("#txtSsno1").val() == "" && $("#txtSsno2").val() != "") {
+             alert("Please type SIN number");
+             $("#txtSsno1").focus();
+             return;
+         } else if ($("#txtSsno1").val() != "" && $("#txtSsno2").val() == "") {
+             alert("Please type SIN number");
+             $("#txtSsno2").focus();
+             return;
+         }
+
+
+         if ($("#txtSsno1").val() == "" && $("#txtSsno2").val() == "") {
+             $("#txtssno").val('');
+         } else {
+             var tempSsno = $("#txtSsno1").val() + '-' + $("#txtSsno2").val()
+             $("#txtssno").val(tempSsno);
+         }
+
+         //calender date
+         var tempInPrdYmd = $("#InPrdYmd").val().replace(/-/gi, "");
+         $("#InPrdYmd").val(tempInPrdYmd);
+
+         var tempOutPrdYmd = $("#OutPrdYmd").val().replace(/-/gi, "");
+         $("#OutPrdYmd").val(tempOutPrdYmd);
+
+         var temppBrdy = $("#pBrdy").val().replace(/-/gi, "");
+         $("#pBrdy").val(temppBrdy);
+
+         var temppStdDt = $("#pStdDt").val().replace(/-/gi, "");
+         $("#pStdDt").val(temppStdDt);
+
+         //A photo upload
+         if ($("#flePto").val() != "") {
+             var vVal, vFiles = "";
+             var isImg = true;
+
+             vVal = $("#flePto").val();
+             vFiles = vFiles + vVal;
+             vVal = vVal.slice(vVal.lastIndexOf(".") + 1).toLowerCase();
+             if (vVal != "jpg" && vVal != "png" && vVal != "gif" && vVal != "bmp" && vVal != "jpeg") {
+                 isImg = false;
+                 return false;
+             }
+             if (!isImg) {
+                 alert("Only an image file(jpg, png, gif, bmp) is available to be uploaded.");
+                 return;
+             } else if (vFiles == "") {
+                 alert("Please choose photo.");
+                 return;
+             }
+         }		
+         if (confirm("Do you want to save the record?")) {
+             var options = {
+                 dataType: 'json',
+                 url: "/INCU05/UpdateBiz",
+                 success: function (data) {
+                     if (data.bRslt) {
+                         fncHstList($("#cboHspCd").val(), $("#pEmpNo").val(), $("#pStdDt").val());
+                     } else {
+                         alert(data.strMsg);
+                     }
+                 }
+             };
+             $("#frmSearch").ajaxForm(options).submit().ajaxForm(null);
+         }		 
+     }
+
+     function fncDel() {
+         if (confirm("Do you want to delete the record?")) {
+             $.ajax({ url: "/INCU05/Delete",
+                 cache: false,
+                 type: 'post',
+                 dataType: 'json',
+                 data: {
+                     cboHspCd: $("#cboHspCd").val(),
+                     pEmpNo: $("#pEmpNo").val(),
+                     pStdDt: $("#pStdDt").val().replace(/-/gi, "")
+                 },
+                 success: function (data) {
+                     alert(data.strMsg);
+                     if (data.bRslt) { //Success
+                         if ($("#divHstList tbody tr").length > 1) {
+                             fncHstList($("#cboHspCd").val(), $("#pEmpNo").val(), '');
+                         } else {
+                             fncGoMain();
+                         }
+                     }
+                 },
+                 error: function (XMLHttpRequest, textStatus, errorThrown) {
+                     fncAjaxSessionExpired(XMLHttpRequest);
+                 }
+             });
+         }
+     }
+
+     function fncGoMain() {
+         location.href = "/INCU05" + GetQueryString();
+     }
+
+
+     function GetQueryString() {
+         fncResetPlaceHolder($("#frmSearch"));
+
+         var vQueryString = "?pSrchHspCd=" + $("#pSrchHspCd").val() + "&pDeptNm=" + escape($("#pDeptNm2").val()) + "&pPstnCd=" + $("#pPstnCd").val()
+                 + "&pEmpNm=" + escape($("#pEmpNm").val())
+                 + "&pWrkStatCd=" + $("#pWrkStatCd").val()
+                 + "&page=" + $("#page").val() + "&tot=" + $("#tot").val();
+         return vQueryString;
+     }
+
+     function fncAddInfoDetail(pSeqNo, obj) {
+        var vTabDvs = $("#pTabDvs").val();
+        fncTableRowSelect("tbl" + vTabDvs + "List", obj);
+        $.ajax({ url: "/INCU05/AddInfoDetail",
+            cache: false,
+            type: 'post',
+            dataType: 'json',
+            data: {
+                pTabDvs: vTabDvs,
+                pHspCd: $("#cboHspCd").val(),
+                pEmpNo: $("#pEmpNo").val(),
+                pSeqNo: pSeqNo
+            },
+            success: function (data) {
+                if (data != "none") {
+                    switch (vTabDvs) {
+                        case "exam":
+                            $("#txtExamSeq").val(data[0].EDU_SEQ);
+                            $("#txtExamDt").val(data[0].EDU_DT);
+                            $("#cboExamCd").val(data[0].EDU_CD);
+                            $("#txtIncgEmpNm").val(data[0].INCG_EMP_NM);
+                            $("#hdnIncgEmpNo").val(data[0].INCG_EMP_NO);
+                            $("#txtExamOrgNm").val(data[0].EDU_ORG_NM);
+                            $("#txtExamScr").val(data[0].EDU_SCR);
+                            if (data[0].PASS_YN != "") {
+                                $("#rdoPass" + data[0].PASS_YN).prop("checked", true);
+                            }
+                            $("#txaMemo").val(data[0].MEMO);
+                            break;
+                        case "eve":
+                            $("#sEvltSeq").text(data[0].EVLT_SEQ);
+                            $("#sEvltDt").text(data[0].EVLT_DT);
+                            $("#sEvltRnk").text(data[0].RNK + "/" + data[0].TOT_CNT);
+                            $("#sEvltPstnRnk").text(data[0].PSTN_RNK + "/" + data[0].PSTN_CNT);
+                            $("#sEvltTotScr").text(data[0].TOT_SCR);
+                            $("#sEvltPstnAvgScr").text(data[0].PSTN_AVG_SCR);
+                            $("#sEvltScr1").text(data[0].EVLT_SCR1);
+                            $("#sEvltScr2").text(data[0].EVLT_SCR2);
+                            $("#sEvltScr3").text(data[0].EVLT_SCR3);
+                            $("#sEvltScr4").text(data[0].EVLT_SCR4);
+                            $("#sEvltScr5").text(data[0].EVLT_SCR5);
+                            $("#sEvltScr6").text(data[0].EVLT_SCR6);
+                            $("#sEvltScr7").text(data[0].EVLT_SCR7);
+                            break;
+                        case "cnsl":
+                            $("#txtCnslSeq").val(data[0].CNSL_SEQ);
+                            $("#txtCnslDt").val(data[0].CNSL_DT);
+                            $("#txtCnslEmpNm").val(data[0].CNSL_EMP_NM);
+                            $("#hdnCnslEmpNo").val(data[0].CNSL_EMP_NO);
+                            $("#cboCnslRsn").val(data[0].CNSL_RSN);
+                            $("#txaCnslCnte").val(data[0].CNSL_CNTE);
+                            break;
+                        case "prs":
+                            $("#txtPrsSeq").val(data[0].PRS_SEQ);
+                            $("#txtPrsDt").val(data[0].PRS_DT);
+                            $("#txtPrsEmpNm").val(data[0].PRS_EMP_NM);
+                            $("#hdnPrsEmpNo").val(data[0].PRS_EMP_NO);
+                            $("#txaPrsCnte").val(data[0].PRS_CNTE);
+                            break;
+                        default:
+                            break;
+                    }
+                    $("#btn_" + vTabDvs + "_new, #btn_" + vTabDvs + "_del ").show();
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                fncAjaxSessionExpired(XMLHttpRequest);
+            }
+        });
+    }
+    /* Details on the right */
+    function fncAddInfoSave() {
+        if ($("#pEmpNo").val() == "" || $("#cboHspCd").val() == "" ) {
+            alert("Before typing extra information, please type employee information.");
+            return;
+        }
+        var vTabDvs = $("#pTabDvs").val();
+        var vMode = "";
+        switch (vTabDvs) {
+            case "exam":
+                var reg = /^[0-9]+$/; // Only number
+                if ($("#txtExamDt").val() == "") {
+                    alert("Please type the date of exam.");
+                    $("#txtExamDt").focus();
+                    return;
+                } else if ($("#cboExamCd").val() == "") {
+                    alert("Please choose the type of exam.");
+                    $("#cboExamCd").focus();
+                    return;
+                } else if ($("#txtIncgEmpNm").val() == "") {
+                    alert("Please choose the person in charge");
+                    $("#txtIncgEmpNm").focus();
+                    return;
+                } else if ($("#txtExamSrc").val() == "") {
+                    alert("Please type the score of exam.");
+                    $("#txtExamSrc").val();
+                    return;
+                } else if (!reg.test($("#txtExamSrc").val())) {
+                    alert("Please type only number for score of exam.");
+                    $("#txtExamSrc").val();
+                    return;
+                }
+                vMode = $("#txtExamSeq").val() == "" ? "I" : "U";
+                break;
+            case "cnsl":
+                if ($("#txtCnslDt").val() == "") {
+                    alert("Please type the date for consutation.");
+                    $("#txtCnslDt").focus();
+                    return;
+                } else if ($("#txtCnslEmpNm").val() == "") {
+                    alert("Please type a writer.");
+                    $("#txtCnslEmpNm").focus();
+                    return;
+                } else if ($("#cboCnslRsn").val() == "") {
+                    alert("Please type the reason of consutation.");
+                    $("#cboCnslRsn").focus();
+                    return;
+                } else if ($("#txaCnslCnte").val() == "") {
+                    alert("Please type the contents for consutation.");
+                    $("#txaCnslCnte").focus();
+                    return;
+                } 
+                vMode = $("#txtCnslSeq").val() == "" ? "I" : "U";
+                break;
+            case "prs":
+                if ($("#txtPrsDt").val() == "") {
+                    alert("Please type the date for compliment.");
+                    $("#txtPrsDt").focus();
+                    return;
+                } else if ($("#txtPrsEmpNm").val() == "") {
+                    alert("Please type a writer.");
+                    $("#txtPrsEmpNm").focus();
+                    return;
+                } else if ($("#txaPrsCnte").val() == "") {
+                    alert("Please type the contents for compliment.");
+                    $("#txaPrsCnte").focus();
+                    return;
+                }
+                vMode = $("#txtPrsSeq").val() == "" ? "I" : "U";
+                break;
+            default:
+                break;
+        }
+
+        if (confirm("Do you want to save the information?")) {
+            fncAddInfoInputBiz(vMode);
+        }
+    }
+
+    function fncAddInfoDel() {
+        if (confirm("Do you want to delete the information?")) {
+            fncAddInfoInputBiz("D");
+        }
+    }
+
+    function fncAddInfoNew() {
+        $("#rr_sbody  input[type=text]").val("");
+        $("#rr_sbody  input[type=hidden]").val("");
+        $("#rr_sbody  input[type=radio]").prop("checked",false);
+        $("#rr_sbody  select").val("");
+        $("#rr_sbody  textarea").val("");
+
+        var vTabDvs = $("#pTabDvs").val();
+        $("#btn_" + vTabDvs + "_new, #btn_" + vTabDvs + "_del ").hide();
+    }
+
+    function fncAddInfoInputBiz(flag) {
+        $("#hdnAddInfoMode").val(flag)
+        $.ajax({ url: "/INCU05/AddInfoInputBiz",
+            cache: false,
+            type: 'post',
+            dataType: 'json',
+            data: $("#frmSearch").serializeArray(),
+            success: function (data) {
+                alert(data.strMsg);
+                if (data.bRslt) { 
+                    var temp = $("#pTabDvs").val();
+                    fncAddInfo('@ent.pHspCd', '@ent.pEmpNo', '@ent.pRealDeptCd', $("#pTabDvs").val());
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                fncAjaxSessionExpired(XMLHttpRequest);
+            }
+        });
+    }
+ </script>
+}
+<h3 class="bottom_line">Employee information</h3>
+<!-- employee information on the left -->
+<div class="left" style="width:623px">
+    <div class="section">
+        <div id="divDetail" style="overflow:hidden"></div>
+    </div>
+    <div  class="section">
+        <table class="tbl_input" style="margin-top:15px">
+            <thead>
+                <tr>
+                    <th colspan="3" class="rightline">Annual leave</th>
+                    <th colspan="4" class="rightline">Vacation</th>
+                    <th colspan="4">Day off</th>
+                </tr>
+                <tr>
+                    <th>Assigned</th>
+                    <th>Used</th>
+                    <th class="rightline">Available</th>
+                    <th>Annual leave</th>
+                    <th>Sick leave</th>
+                    <th>Half a day off</th>
+                    <th class="rightline">Etc.</th>
+                    <th>Replacement</th>
+                    <th>Congratulations and condolence</th>
+                    <th>An official holiday</th>
+                    <th>Birth</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="t_right">@intVct1</td>
+                    <td class="t_right">@intVct2</td>
+                    <td class="t_right rightline">@intVct3</td>
+                    <td class="t_right">@intVct4</td>
+                    <td class="t_right">@intVct5</td>
+                    <td class="t_right">@intVct6</td>
+                    <td class="t_right rightline">@intVct7</td>
+                    <td class="t_right">@intVct8</td>
+                    <td class="t_right">@intVct9</td>
+                    <td class="t_right">@intVct10</td>
+                    <td class="t_right">@intVct11</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="section">  <!--Information history-->
+        <div id = "divHstList" style="margin-top:15px"></div>
+    </div>
+    <input type="hidden" id="pStdDt" name="pStdDt" value="@ent.STD_DT" />
+</div>
+<!-- Evaluation infomation on the right -->
+<div class="right" style="width:550px">
+    <ul class="rr_sheader">
+    @if (ent.pMngYn == "Y" && (ent.sesLoginEmpNo == "1000001" || ent.sesLoginEmpNo == "ADMIN"))
+	{
+        <li class="" data-tab="tot">Total score</li>
+	}
+        <li class="" data-tab="exam">History of exam</li>    
+    @if (ent.pMngYn == "Y" && (ent.sesLoginEmpNo == "1000001" || ent.sesLoginEmpNo == "ADMIN"))
+	{
+        <li class="" data-tab="eve">Evaluation</li>  
+	}
+    @if (ent.sesLoginEmpNo != ent.pEmpNo || ent.pMngYn == "Y")
+	{  
+        <li class="" data-tab="cnsl">History of consutation</li>    
+	}
+    @if (ent.sesLoginEmpNo != ent.pEmpNo || ent.pMngYn == "Y")
+	{  
+        <li class="" data-tab="prs">History of compliment</li>    
+	}
+    </ul>
+    <div id="rr_sbody">
+    </div>
+    <input type="hidden" id="pTabDvs" name="pTabDvs" value=""/>   
+</div>
+
+
+<!--Filter for Search -->
+<input type="hidden" id="pSrchHspCd" name="pSrchHspCd" value="@ent.pSrchHspCd" />
+<input type="hidden" id="pDeptNm2" name="pDeptNm2" value="@ent.pDeptNm" />
+<input type="hidden" id="pEmpNm" name="pEmpNm" value="@ent.pEmpNm" />
+<input type="hidden" id="pPstnCd" name="pPstnCd" value="@ent.pPstnCd" /> 
+<input type="hidden" id="pWrkStatCd" name="pWrkStatCd" value="@ent.pWrkStatCd" />
+<input type="hidden" id="page" name="page" value="@ent.page" />
+<input type="hidden" id="tot" name="tot" value="@ent.tot" />
+
+<!--  Extra information -->
+<input type="hidden" id="hdnAddInfoMode" name="hdnAddInfoMode" />

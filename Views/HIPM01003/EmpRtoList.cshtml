@@ -1,0 +1,66 @@
+﻿@{
+    ComnEnt ent = ViewBag.ent;
+    DataTable dt = ViewBag.dt;
+}
+
+
+<div class="div_tbl left" style="height:270px">
+    <div id="divRtoChart" class="left chart" style="width:375px; height:268px;">
+    </div>
+    <div class="right table" style="width:200px;height:246px;border-bottom:1px solid #dfe6e6;">
+        <table class="tbl_list" style="width:100%; table-layout:fixed">
+            <colgroup>
+	            <col style="width:75px" /> <!-- Name -->
+                <col style="width:80px" /> <!-- Records -->
+                <col style="width:auto" /> <!-- Options -->
+            </colgroup>
+            <thead>
+	        <tr style="height:37px">
+                <th class="rightline">Name</th>
+                <th class="rightline">Records</th>
+                <th>Options</th>
+            </tr>
+            </thead>
+        </table>
+        <div id="divRtoList" class="div_tbl_scroll" style="height:209px;">
+            @if (dt.Rows.Count == 0)
+            {
+                <p>No Results.</p>
+            }
+            else
+            {
+                string strFmt, strUnitType;
+                int intRowCnt = 0;
+            
+                <table class="tbl_list" style="width:100%; table-layout:fixed">
+                    <colgroup>
+	                    <col style="width:75px" /> <!-- Name -->
+                        <col style="width:80px" /> <!-- Records -->
+                        <col style="width:auto" /> <!-- Options -->
+                    </colgroup>
+                    <tbody>
+                    @foreach (DataRow row in dt.Rows)
+                    {
+                        strFmt = row["FMT"].ToString();
+                        strUnitType = row["UNIT_TYP"].ToString();
+	                    <tr style="height:41px">
+                            <td class="rightline t_center cut"><label for="pArrCond1_@(intRowCnt)">@row["EMP_NM"]</label></td>
+                            <td class="rightline t_right"><label for="pArrCond1_@(intRowCnt)">@Config.GetUnitVal(Convert.ToDouble(row["RSLT"]), strFmt, strUnitType)<span class="unit">@Config.strRetUnitTypeNm</span></label></td>
+                            <td class="t_center"><input type="checkbox" id="pArrCond1_@(intRowCnt)" name="pArrCond1" value="@row["EMP_NO"]" onclick="fncAddPscdChart(this)" /></td>
+                        </tr>
+                        intRowCnt++;
+                    }
+                    @for (int i = intRowCnt; i < 5; i++)
+                    {
+                        <tr style="height:41px">
+                            <td class="rightline"></td>
+                            <td class="rightline"></td>
+                            <td></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,532 @@
+﻿@{
+    NMHI.Models.Domain.INTRA.INCU05Ent ent = ViewBag.ent;
+
+    DataTable dt = ViewBag.dt;
+
+    switch (ent.pTabDvs)
+    {
+        case "tot":
+            //Evaluation for records
+            DataTable dtInd = ViewBag.dtInd;
+            int intIndCnt = dtInd == null ? 0 : dtInd.Rows.Count;
+            //Evaluation
+            DataTable dtEve = ViewBag.dtEve;
+            string strTotSrcT = "-", strTotRnkT = "-", strPstnAvgScrT = "-", strPstnRnkT = "-", strEvltScr1T = "-", strEvltScr2T = "-", strEvltScr3T = "-",
+                 strEvltScr4T = "-", strEvltScr5T = "-", strEvltScr6T = "-", strEvltScr7T = "-", strTotSrcP = "-", strEvltScr1P = "-", strEvltScr2P = "-", strEvltScr3P = "-",
+                 strEvltScr4P = "-", strEvltScr5P = "-", strEvltScr6P = "-", strEvltScr7P = "-", strTotScrIc = "-";
+            foreach (DataRow drEve in dtEve.Rows)
+            {
+                switch (drEve["SEQ_DVS"].ToString())
+                {
+                    case "1": //current
+                        strTotSrcT = drEve["TOT_SCR"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["TOT_SCR"]).ToString("#,##0.0");
+                        strTotRnkT = drEve["RNK"].ToString();
+                        strPstnAvgScrT = drEve["PSTN_AVG_SCR"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["PSTN_AVG_SCR"]).ToString("#,##0.0");
+                        strPstnRnkT = drEve["PSTN_RNK"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["PSTN_RNK"]).ToString("#,##0.0");
+                        strEvltScr1T = drEve["EVLT_SCR1"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR1"]).ToString("#,##0.0");
+                        strEvltScr2T = drEve["EVLT_SCR2"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR2"]).ToString("#,##0.0");
+                        strEvltScr3T = drEve["EVLT_SCR3"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR3"]).ToString("#,##0.0");
+                        strEvltScr4T = drEve["EVLT_SCR4"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR4"]).ToString("#,##0.0");
+                        strEvltScr5T = drEve["EVLT_SCR5"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR5"]).ToString("#,##0.0");
+                        strEvltScr6T = drEve["EVLT_SCR6"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR6"]).ToString("#,##0.0");
+                        strEvltScr7T = drEve["EVLT_SCR7"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR7"]).ToString("#,##0.0");
+                        break;
+                    case "2": //previous
+                        strTotSrcP = drEve["TOT_SCR"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["TOT_SCR"]).ToString("#,##0.0");
+                        strEvltScr1P = drEve["EVLT_SCR1"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR1"]).ToString("#,##0.0");
+                        strEvltScr2P = drEve["EVLT_SCR2"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR2"]).ToString("#,##0.0");
+                        strEvltScr3P = drEve["EVLT_SCR3"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR3"]).ToString("#,##0.0");
+                        strEvltScr4P = drEve["EVLT_SCR4"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR4"]).ToString("#,##0.0");
+                        strEvltScr5P = drEve["EVLT_SCR5"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR5"]).ToString("#,##0.0");
+                        strEvltScr6P = drEve["EVLT_SCR6"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR6"]).ToString("#,##0.0");
+                        strEvltScr7P = drEve["EVLT_SCR7"] == DBNull.Value ? "-" : Convert.ToDouble(drEve["EVLT_SCR7"]).ToString("#,##0.0");
+                        break;
+                    default:
+                        break;
+                }
+            }
+            strTotScrIc = strTotRnkT == "-" || strTotSrcP == "-" ? "-" : (strTotSrcP == "0" ? "0" : Math.Round((Convert.ToDouble(strTotSrcT) - Convert.ToDouble(strTotSrcP)) / Convert.ToDouble(strTotSrcP) * 100, 1).ToString("#,##0.0"));
+
+            //History of Exams
+            DataTable dtExam = ViewBag.dtExam;
+            string strEduScrT = "-", strPassYnT = "-", strEduScrP1 = "-", strEduScrP2 = "-", strEduScrIc1 = "-", strEduScrIc2 = "-";
+            foreach (DataRow drExam in dtExam.Rows)
+            {
+                switch (drExam["SEQ_DVS"].ToString())
+                {
+                    case "1": //Current
+                        strEduScrT = drExam["EDU_SCR"] == DBNull.Value ? "-" : Convert.ToDouble(drExam["EDU_SCR"]).ToString("#,##0.0");
+                        strPassYnT = drExam["PASS_YN"].ToString() == "Y" ? "N" : "Y"; 
+                        break;
+                    case "2": //Previous
+                        strEduScrP1 = drExam["EDU_SCR"] == DBNull.Value ? "-" : Convert.ToDouble(drExam["EDU_SCR"]).ToString("#,##0.0");
+                        break;
+                    case "3": 
+                        strEduScrP2 = drExam["EDU_SCR"] == DBNull.Value ? "-" : Convert.ToDouble(drExam["EDU_SCR"]).ToString("#,##0.0");
+                        break;
+                    default:
+                        break;
+                }
+            }
+            strEduScrIc1 = strEduScrT == "-" || strEduScrP1 == "-" ? "-" : (strEduScrP1 == "0" ? "0" : Math.Round((Convert.ToDouble(strEduScrT) - Convert.ToDouble(strEduScrP1)) / Convert.ToDouble(strEduScrP1) * 100, 1).ToString("#,##0.0"));
+            strEduScrIc2 = strEduScrT == "-" || strEduScrP2 == "-" ? "-" : (strEduScrP2 == "0" ? "0" : Math.Round((Convert.ToDouble(strEduScrT) - Convert.ToDouble(strEduScrP2)) / Convert.ToDouble(strEduScrP2) * 100, 1).ToString("#,##0.0"));
+                        
+            <table class="tbl_input">
+                <colgroup>
+                    <col width="80" />
+                    <col width="120" />
+                    <col width="" />
+                    <col width="120" />
+                    <col width="" />
+                </colgroup>
+                <tbody>
+                @if (intIndCnt > 0)
+                {
+                    int intRowSpan = (intIndCnt + 1) / 2, intRowNum = 1;
+                    <tr>
+                        <th rowspan="intRowSpan" class="rightline">Evaluation of records</th>
+                    @foreach (DataRow drInd in dtInd.Rows)
+                    {
+                        if (intRowNum % 2 == 1 && intRowNum != 1)
+                        {
+                            @:</tr>
+                            @:<tr>
+                        }
+                        <th class="th2">@drInd["IND_NM"]</th>
+                        <td class="t_right">@Convert.ToDouble(drInd["RSLT"]).ToString("#,##0")</td>
+                    }
+                    @if (intIndCnt % 2 == 1)
+                    {
+                        <td colspan="2"></td>
+                    }                        
+                    </tr>
+                }
+                    <tr>
+                        <th rowspan="10" class="rightline">Evaluation</th>
+                        <th class="th2">Total score</th>
+                        <td class="t_right">@strTotSrcT</td>
+                        <th class="th2">Total score of last year</th>
+                        <td class="t_right">@strTotSrcP</td>
+                    </tr>
+                    <tr>
+                        <th class="th2">Ranking</th>
+                        <td class="t_right">@strTotRnkT</td>
+                        <th class="th2">Ranking in same positions</th>
+                        <td class="t_right">@strPstnRnkT</td>
+                    </tr>        
+                    <tr>
+                        <th class="th2">The average score of same positions</th>
+                        <td class="t_right">@strPstnAvgScrT</td>
+                        <th class="th2">Increas rate of total score<span class="unit">(%)</span></th>
+                        <td class="t_right">@strTotScrIc</td>
+                    </tr>
+                    <tr>
+                        <th class="th2">Evaluation from Senior</th>
+                        <td class="t_right">@strEvltScr5T</td>
+                        <th class="th2">Evaluation from Senior in last year</th>
+                        <td class="t_right">@strEvltScr5P</td>
+                    </tr>        
+                    <tr>
+                        <th class="th2">Evaluation from Colleague</th>
+                        <td class="t_right">@strEvltScr6T</td>
+                        <th class="th2">Evaluation from Colleague in last year</th>
+                        <td class="t_right">@strEvltScr6P</td>
+                    </tr>
+                    <tr>
+                        <th class="th2">Evaluation from Junior</th>
+                        <td class="t_right">@strEvltScr7T</td>
+                        <th class="th2">Evaluation from Junior in last year</th>
+                        <td class="t_right">@strEvltScr7P</td>
+                    </tr>
+                    <tr>
+                        <th class="th2">Accomplishments</th>
+                        <td class="t_right">@strEvltScr1T</td>
+                        <th class="th2">Accomplishments in last year</th>
+                        <td class="t_right">@strEvltScr1P</td>
+                    </tr>
+                    <tr>
+                        <th class="th2">Skills</th>
+                        <td class="t_right">@strEvltScr2T</td>
+                        <th class="th2">Skills in last year</th>
+                        <td class="t_right">@strEvltScr2P</td>
+                    </tr>
+                    <tr>
+                        <th class="th2">Attitude</th>
+                        <td class="t_right">@strEvltScr3T</td>
+                        <th class="th2">Attitude in last year</th>
+                        <td class="t_right">@strEvltScr3P</td>
+                    </tr>
+                    <tr>
+                        <th class="th2">Leadership</th>
+                        <td class="t_right">@strEvltScr4T</td>
+                        <th class="th2">Leadership in last year</th>
+                        <td class="t_right">@strEvltScr4P</td>
+                    </tr>
+                    <tr>
+                        <th rowspan="3" class="rightline">Internal exam</th>
+                        <th class="th2">Total score</th>
+                        <td class="t_right">@strEduScrT</td>
+                        <th class="th2">Makeup test</th>
+                        <td class="t_center">@strPassYnT</td>
+                    </tr>
+                    <tr>
+                        <th class="th2">Total score in last year</th>
+                        <td class="t_right">@strEduScrP1</td>
+                        <th class="th2">Increase rate<span class="unit">(%)</span></th>
+                        <td class="t_right">@strEduScrIc1</td>
+                    </tr>
+                </tbody>
+            </table>
+            break;
+        case "exam":
+            <table class="tbl_input">
+                <tbody>
+                    <tr>
+                        <th>Seq</th>
+                        <td><input type="text" id="txtExamSeq" name="txtExamSeq" class="disabled t_right" readonly/></td>
+                        <th>Date</th>
+                        <td><input type="text" id="txtExamDt" name="txtExamDt" class="datepicker" style="width:100px" /></td>
+                    </tr>
+                    <tr>
+                        <th>Type of an exam</th>
+                        <td colspan="3">
+                            @Inc.select_com_admin("UT526", "cboExamCd", "", true)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>The person in charge</th>
+                        <td>
+                            <input type="hidden" id="hdnIncgEmpNo" name="hdnIncgEmpNo" class="hdnIncgEmpNo"/> 
+                            <input type="text" id="txtIncgEmpNm" name="txtIncgEmpNm" class="left hdnIncgEmpNo" style="width:80px;ime-mode:disabled" onkeydown="fncIncKeyEvent('hdnIncgEmpNo');"/> 
+                            <img src="/Content/images/button/btn_find.png" class="left" alt="The person in charge" onclick="fncEmpPopOpen('hdnIncgEmpNo', 'txtIncgEmpNm','','','A','','','M')" style="height:28px; margin-left:3px; cursor:pointer" />
+                        </td>
+                        <th>Organization</th>
+                        <td><input type="text" id="txtExamOrgNm" name="txtExamOrgNm" /></td>
+                    </tr>
+                    <tr>
+                        <th>Score</th>
+                        <td><input type="text" id="txtExamScr" name="txtExamScr" class="t_right" style="ime-mode:disabled"  onkeypress="f_imeControl('NUM');" maxlength="3"/></td>
+                        <th>Status</th>
+                        <td>
+                            <input type="radio" id="rdoPassY" name="rdoPassYN" value="Y"/>
+                            <label for="rdoPassY">Y</label>
+                            <input type="radio" id="rdoPassN" name="rdoPassYN" value="N"/>
+                            <label for="rdoPassN">N</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Note</th>
+                        <td colspan="3">
+                            <textarea id="txaMemo" name="txaMemo" style="height:50px;margin:2px 0"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="overflow:hidden">
+                <span class="button button4 right" id="btn_exam_del" onclick="fncAddInfoDel()" style="display:none">Delete</span>
+                <span class="button button4 right" id="btn_exam_save" onclick="fncAddInfoSave()" >Save</span>
+                <span class="button button4 right" id="btn_exam_new" onclick="fncAddInfoNew()" style="display:none">New</span>
+            </div>
+
+            <table class="tbl_list" style="margin-top:15px">
+                <colgroup>
+                    <col width="70" />
+                    <col width="100" />
+                    <col width="" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Seq.</th>
+                        <th>Date</th>
+                        <th>Name of an exam</th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="div_tbl_scroll">
+                <table id="tblexamList" class="tbl_list" >
+                    <colgroup>
+                        <col width="70" />
+                        <col width="100" />
+                        <col width="" />
+                    </colgroup>
+                    <tbody>    
+                    @foreach (DataRow row in dt.Rows)
+                    {
+                        <tr onclick="fncAddInfoDetail('@row["EDU_SEQ"]',this)" style="cursor:pointer">
+                            <td class="t_center">@(row["EDU_SEQ"] + "times")</td>
+                            <td class="t_center">@row["EDU_DT"]</td>
+                            <td class="t_left cut">@row["EDU_NM"]</td>
+                        </tr>
+                    }
+                    @for (int i = dt.Rows.Count; i < 5; i++)
+                    {
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+                    break;
+        case "eve":
+            <table class="tbl_input">
+                <tbody>
+                    <tr>
+                        <th>Seq</th>
+                        <td class="t_right"><span id="sEvltSeq"></span></td>
+                        <th>Date</th>
+                        <td class="t_right"><span id="sEvltDt"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Total ranking</th>
+                        <td class="t_right"><span id="sEvltRnk"></span></td>
+                        <th>Ranking of same positions</th>
+                        <td class="t_right"><span id="sEvltPstnRnk"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Total Score</th>
+                        <td class="t_right"><span id="sEvltTotScr"></span></td>
+                        <th>The average score of same positions</th>
+                        <td class="t_right"><span id="sEvltPstnAvgScr"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Accomplishments</th>
+                        <td class="t_right"><span id="sEvltScr1"></span></td>
+                        <th>Senior</th>
+                        <td class="t_right"><span id="sEvltScr5"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Skills</th>
+                        <td class="t_right"><span id="sEvltScr2"></span></td>
+                        <th>Colleague</th>
+                        <td class="t_right"><span id="sEvltScr6"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Attitude</th>
+                        <td class="t_right"><span id="sEvltScr3"></span></td>
+                        <th>Junior</th>
+                        <td class="t_right"><span id="sEvltScr7"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Leadership</th>
+                        <td class="t_right"><span id="sEvltScr4"></span></td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class="tbl_list" style="margin-top:15px">                
+                <colgroup>
+                    <col width="70" />
+                    <col width="100" />
+                    <col width="" />
+                    <col width="" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Seq.</th>
+                        <th>Date</th>
+                        <th>Total Score</th>
+                        <th>Total ranking</th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="div_tbl_scroll">
+                <table id="tbleveList" class="tbl_list" >
+                    <colgroup>
+                        <col width="70" />
+                        <col width="100" />
+                        <col width="" />
+                        <col width="" />
+                    </colgroup>
+                    <tbody>   
+                    @foreach (DataRow row in dt.Rows)
+                    {
+                        <tr onclick="fncAddInfoDetail('@row["EVLT_SEQ"]',this)" style="cursor:pointer">
+                            <td class="t_center">@(row["EVLT_SEQ"] + "time")</td>
+                            <td class="t_center">@row["EVLT_DT"]</td>
+                            <td class="t_right">@row["TOT_SCR"]</td>
+                            <td class="t_right">@row["RNK"]</td>
+                        </tr>
+                    }                 
+                    @for (int i = dt.Rows.Count; i < 5; i++)
+                    {
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+                    break;
+        case "cnsl":
+            <table class="tbl_input">
+                <tbody>
+                    <tr>
+                        <th>Seq.</th>
+                        <td><input type="text" id="txtCnslSeq" name="txtCnslSeq" class="disabled t_right" readonly/></td>
+                        <th>Date</th>
+                        <td><input type="text" id="txtCnslDt" name="txtCnslDt" class="datepicker" style="width:100px" /></td>
+                    </tr>
+                    <tr>
+                        <th>Counselor</th>
+                        <td>
+                            <input type="hidden" id="hdnCnslEmpNo" name="hdnCnslEmpNo" class="hdnCnslEmpNo"/>
+                            <input type="text" id="txtCnslEmpNm" name="txtCnslEmpNm" class="left hdnCnslEmpNo"  style="width:80px;ime-mode:disabled" onkeydown="fncIncKeyEvent('hdnCnslEmpNo');"/>
+                            <img src="/Content/images/button/btn_find.png" class="left" alt="Counselor" onclick="fncEmpPopOpen('hdnCnslEmpNo', 'txtCnslEmpNm','','','A','','','M')" style="height:28px; margin-left:3px; cursor:pointer" />
+                        </td>
+                        <th>Reason for counselting</th>
+                        <td>
+                            @Inc.select_com_admin("UT527", "cboCnslRsn", "", true)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Contents</th>
+                        <td colspan="3">
+                            <textarea id="txaCnslCnte" name="txaCnslCnte"  style="height:50px;margin:2px 0"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="overflow:hidden">
+                <span class="button button4 right" id="btn_cnsl_del" onclick="fncAddInfoDel()" style="display:none">Delete</span>
+                <span class="button button4 right" id="btn_cnsl_save" onclick="fncAddInfoSave()" >Save</span>
+                <span class="button button4 right" id="btn_cnsl_new" onclick="fncAddInfoNew()" style="display:none">New</span>
+            </div>
+
+            <table class="tbl_list" style="margin-top:15px">
+                <colgroup>
+                    <col width="70" />
+                    <col width="100" />
+                    <col width="100" />
+                    <col width="" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Seq.</th>
+                        <th>Date</th>
+                        <th>Consultant</th>
+                        <th>Reason of consulting</th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="div_tbl_scroll">
+                <table id="tblcnslList" class="tbl_list" >
+                    <colgroup>
+                        <col width="70" />
+                        <col width="100" />
+                        <col width="100" />
+                        <col width="" />
+                    </colgroup>
+                    <tbody> 
+                    @foreach (DataRow row in dt.Rows)
+                    {
+                        <tr onclick="fncAddInfoDetail('@row["CNSL_SEQ"]',this)" style="cursor:pointer">
+                            <td class="t_center">@(row["CNSL_SEQ"] + "time")</td>
+                            <td class="t_center">@row["CNSL_DT"]</td>
+                            <td class="t_center">@row["CNSL_EMP_NM"]</td>
+                            <td class="t_left cut">@row["CNSL_RSN_NM"]</td>
+                        </tr>
+                    }                       
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        break;
+        case "prs":
+            <table class="tbl_input">
+                <tbody>
+                    <tr>
+                        <th>Seq.</th>
+                        <td><input type="text" id="txtPrsSeq" name="txtPrsSeq" class="disabled t_right" readonly/></td>
+                        <th>Date</th>
+                        <td><input type="text" id="txtPrsDt" name="txtPrsDt" class="datepicker" style="width:100px" /></td>
+                    </tr>
+                    <tr>
+                        <th>Writer</th>
+                        <td>
+                            <input type="hidden" id="hdnPrsEmpNo" name="hdnPrsEmpNo" class="hdnPrsEmpNo"/>
+                            <input type="text" id="txtPrsEmpNm" name="txtPrsEmpNm" class="left hdnPrsEmpNo"  style="width:80px;ime-mode:disabled" onkeydown="fncIncKeyEvent('hdnPrsEmpNo');"/>
+                            <img src="/Content/images/button/btn_find.png" class="left" alt="상담자 선택" onclick="fncEmpPopOpen('hdnPrsEmpNo', 'txtPrsEmpNm','','','A','','','M')" style="height:28px; margin-left:3px; cursor:pointer" />
+                        </td>
+                        <th></th>
+                        <td>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Contents of compliment</th>
+                        <td colspan="3">
+                            <textarea id="txaPrsCnte" name="txaPrsCnte"  style="height:50px;margin:2px 0"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="overflow:hidden">
+                <span class="button button4 right" id="btn_prs_del" onclick="fncAddInfoDel()" style="display:none">Delete</span>
+                <span class="button button4 right" id="btn_prs_save" onclick="fncAddInfoSave()" >Save</span>
+                <span class="button button4 right" id="btn_prs_new" onclick="fncAddInfoNew()" style="display:none">New</span>
+            </div>
+            <table class="tbl_list" style="margin-top:15px">
+                <colgroup>
+                    <col width="70" />
+                    <col width="100" />
+                    <col width="100" />
+                    <col width="" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Seq.</th>
+                        <th>Date</th>
+                        <th>Writer</th>
+                        <th>Reason for compliment</th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="div_tbl_scroll">
+                <table id="tblprsList" class="tbl_list" >
+                    <colgroup>
+                        <col width="70" />
+                        <col width="100" />
+                        <col width="100" />
+                        <col width="" />
+                    </colgroup>
+                    <tbody> 
+                    @foreach (DataRow row in dt.Rows)
+                    {
+                        <tr onclick="fncAddInfoDetail('@row["PRS_SEQ"]',this)" style="cursor:pointer">
+                            <td class="t_center">@(row["PRS_SEQ"] + "time")</td>
+                            <td class="t_center">@row["PRS_DT"]</td>
+                            <td class="t_center">@row["PRS_EMP_NM"]</td>
+                            <td class="t_left cut">@row["PRS_CNTE"]</td>
+                        </tr>
+                    }                       
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+                break;
+        default:
+                break;
+    }
+}
