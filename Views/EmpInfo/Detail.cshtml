@@ -1,7 +1,7 @@
 ﻿@using NMHI.Models.Domain.INTRA
 @{
     ViewBag.Title = "Employee information";
-    INCU05Ent ent = ViewBag.ent;
+    EmpInfoEnt ent = ViewBag.ent;
    
     Layout = "~/Views/Shared/_Layout.cshtml";
 
@@ -88,7 +88,7 @@
 
      //History of employees
      function fncHstList(pHspCd, pEmpNo, pStdDt) {
-         $.ajax({ url: "/INCU05/HstList",
+         $.ajax({ url: "/EmpInfo/HstList",
              cache: false,
              type: 'post',
              data: {
@@ -118,7 +118,7 @@
      //Details
      function fncDetail(pHspCd, pEmpNo, pStdDt, obj) {
          fncTableRowSelect("tblList", obj);
-         $.ajax({ url: "/INCU05/Detail_Content",
+         $.ajax({ url: "/EmpInfo/Detail_Content",
              cache: false,
              type: 'post',
              dataType: 'html',
@@ -162,7 +162,7 @@
 
      //Extra information
      function fncAddInfo(pHspCd, pEmpNo, pRealDeptCd, pTabDvs) {
-         $.ajax({ url: "/INCU05/AddInfo",
+         $.ajax({ url: "/EmpInfo/AddInfo",
              cache: false,
              type: 'post',
              data: {
@@ -294,7 +294,7 @@
          if (confirm("Do you want to save the record?")) {
              var options = {
                  dataType: 'json',
-                 url: "/INCU05/UpdateBiz",
+                 url: "/EmpInfo/UpdateBiz",
                  success: function (data) {
                      if (data.bRslt) {
                          fncHstList($("#cboHspCd").val(), $("#pEmpNo").val(), $("#pStdDt").val());
@@ -309,7 +309,7 @@
 
      function fncDel() {
          if (confirm("Do you want to delete the record?")) {
-             $.ajax({ url: "/INCU05/Delete",
+             $.ajax({ url: "/EmpInfo/Delete",
                  cache: false,
                  type: 'post',
                  dataType: 'json',
@@ -336,7 +336,7 @@
      }
 
      function fncGoMain() {
-         location.href = "/INCU05" + GetQueryString();
+         location.href = "/EmpInfo" + GetQueryString();
      }
 
 
@@ -353,7 +353,7 @@
      function fncAddInfoDetail(pSeqNo, obj) {
         var vTabDvs = $("#pTabDvs").val();
         fncTableRowSelect("tbl" + vTabDvs + "List", obj);
-        $.ajax({ url: "/INCU05/AddInfoDetail",
+        $.ajax({ url: "/EmpInfo/AddInfoDetail",
             cache: false,
             type: 'post',
             dataType: 'json',
@@ -518,7 +518,7 @@
 
     function fncAddInfoInputBiz(flag) {
         $("#hdnAddInfoMode").val(flag)
-        $.ajax({ url: "/INCU05/AddInfoInputBiz",
+        $.ajax({ url: "/EmpInfo/AddInfoInputBiz",
             cache: false,
             type: 'post',
             dataType: 'json',

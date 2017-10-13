@@ -14,9 +14,9 @@ using System.IO;
 namespace NMHI.Controllers.INTRA
 {
     
-    public class INCU05Controller : Controller
+    public class EmpInfoController : Controller
     {
-        private INCU05Data data = new INCU05Data();
+        private EmpInfoData data = new EmpInfoData();
 
         /// <summary>
         /// Description : Information of employees
@@ -26,7 +26,7 @@ namespace NMHI.Controllers.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public ActionResult Index(INCU05Ent ent)
+        public ActionResult Index(EmpInfoEnt ent)
         {
             ent.pWrkStatCd = string.IsNullOrEmpty(ent.pWrkStatCd) ? "01" : ent.pWrkStatCd;
             ViewBag.ent = ent;
@@ -41,12 +41,11 @@ namespace NMHI.Controllers.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public ActionResult List(INCU05Ent ent)
+        public ActionResult List(EmpInfoEnt ent)
         {
             #region params for paging
             if (ent.page == 0) { ent.page = 1; } //current page
-            ent.page_sz = 17; //size of page
-            //  ent.tot = ent.tot == 0 ? data.GetListCnt(ent) : ent.tot;
+            ent.page_sz = 17;                    //size of page
             ent.tot = data.GetListCnt(ent);
             #endregion
 
@@ -64,7 +63,7 @@ namespace NMHI.Controllers.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public ActionResult Detail(INCU05Ent ent)
+        public ActionResult Detail(EmpInfoEnt ent)
         {
             ViewBag.ent = ent;
 			ViewBag.empList = data.GetEmpList(ent);
@@ -81,7 +80,7 @@ namespace NMHI.Controllers.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public ActionResult Detail_Content(INCU05Ent ent)
+        public ActionResult Detail_Content(EmpInfoEnt ent)
         {
             ViewBag.ent = ent;			
             ViewBag.dr = data.EmpDetail(ent);
@@ -97,7 +96,7 @@ namespace NMHI.Controllers.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public ActionResult HstList(INCU05Ent ent)
+        public ActionResult HstList(EmpInfoEnt ent)
         {
             ViewBag.ent = ent;
             ViewBag.dt = data.GetHstList(ent);
@@ -111,7 +110,7 @@ namespace NMHI.Controllers.INTRA
         ///  
         /// </summary>
         /// <returns></returns>
-        public PartialViewResult AddInfo(INCU05Ent ent)
+        public PartialViewResult AddInfo(EmpInfoEnt ent)
         {
             ViewBag.ent = ent;
             switch (ent.pTabDvs)
@@ -139,7 +138,7 @@ namespace NMHI.Controllers.INTRA
             return PartialView();
         }
 
-        public JsonResult AddInfoDetail(INCU05Ent ent)
+        public JsonResult AddInfoDetail(EmpInfoEnt ent)
         {
             DataRow dr = null;
 
@@ -188,7 +187,7 @@ namespace NMHI.Controllers.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public ActionResult UpdateBiz(INCU05Ent ent)
+        public ActionResult UpdateBiz(EmpInfoEnt ent)
         {
             ent.userIP = Request.UserHostAddress;
             ent.pStdDt = ent.pStdDt.Replace(",", "");
@@ -220,7 +219,7 @@ namespace NMHI.Controllers.INTRA
             #region 
             if (ent.hdnMode == "I")
             {
-                rslt = cd.Update(ent, strMode, "INCU05.InsEmp");
+                rslt = cd.Update(ent, strMode, "EmpInfo.InsEmp");
                 if (rslt.bRslt)
                 {   //CM_EMP_HST procedure
                     rslt.bRslt = data.GetEmpHstBiz(ent);
@@ -228,7 +227,7 @@ namespace NMHI.Controllers.INTRA
             }
             else if (ent.hdnMode == "U")
             {
-                rslt = cd.Update(ent, strMode, "INCU05.UpdEmp");
+                rslt = cd.Update(ent, strMode, "EmpInfo.UpdEmp");
             }
             else if (ent.hdnMode == "H") // adding history
             {
@@ -236,7 +235,7 @@ namespace NMHI.Controllers.INTRA
                 {   // original image INSERT
                     ent.pPtoNm = ent.hdnPto;
                 }
-                rslt = cd.Update(ent, strMode, "INCU05.InsEmp");
+                rslt = cd.Update(ent, strMode, "EmpInfo.InsEmp");
             }
             #endregion
             
@@ -251,10 +250,10 @@ namespace NMHI.Controllers.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public ActionResult Delete(INCU05Ent ent)
+        public ActionResult Delete(EmpInfoEnt ent)
         {
             ComnData cd = new ComnData();
-            RsltEnt rslt = cd.Update(ent, "D", "INCU05.DelEmp");
+            RsltEnt rslt = cd.Update(ent, "D", "EmpInfo.DelEmp");
             return Json(rslt);
         }
         /// <summary>
@@ -265,7 +264,7 @@ namespace NMHI.Controllers.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public JsonResult AddInfoInputBiz(INCU05Ent ent)
+        public JsonResult AddInfoInputBiz(EmpInfoEnt ent)
         {
             ent.userIP = Request.UserHostAddress;
             ComnData cd = new ComnData();
@@ -280,13 +279,13 @@ namespace NMHI.Controllers.INTRA
                     {
                         case "I":
                             ent.txtExamSeq = data.GetMaxExamSeq(ent);
-                            strMapUrl = "INCU05.InsExam";
+                            strMapUrl = "EmpInfo.InsExam";
                             break;
                         case "U":
-                            strMapUrl = "INCU05.UpdExam";
+                            strMapUrl = "EmpInfo.UpdExam";
                             break;
                         case "D":
-                            strMapUrl = "INCU05.DelExam";
+                            strMapUrl = "EmpInfo.DelExam";
                             break;
                         default:
                             break;
@@ -298,13 +297,13 @@ namespace NMHI.Controllers.INTRA
                     {
                         case "I":
                             ent.txtCnslSeq = data.GetMaxCnslSeq(ent);
-                            strMapUrl = "INCU05.InsCnsl";
+                            strMapUrl = "EmpInfo.InsCnsl";
                             break;
                         case "U":
-                            strMapUrl = "INCU05.UpdCnsl";
+                            strMapUrl = "EmpInfo.UpdCnsl";
                             break;
                         case "D":
-                            strMapUrl = "INCU05.DelCnsl";
+                            strMapUrl = "EmpInfo.DelCnsl";
                             break;
                         default:
                             break;
@@ -316,22 +315,20 @@ namespace NMHI.Controllers.INTRA
                     {
                         case "I":
                             ent.txtPrsSeq = data.GetMaxPrsSeq(ent);
-                            strMapUrl = "INCU05.InsPrs";
+                            strMapUrl = "EmpInfo.InsPrs";
                             break;
                         case "U":
-                            strMapUrl = "INCU05.UpdPrs";
+                            strMapUrl = "EmpInfo.UpdPrs";
                             break;
                         case "D":
-                            strMapUrl = "INCU05.DelPrs";
+                            strMapUrl = "EmpInfo.DelPrs";
                             break;
                         default:
                             break;
                     }
                     break;
             }
-
             RsltEnt rslt = cd.Update(ent, ent.hdnAddInfoMode, strMapUrl);
-
             return Json(rslt);
         }
     }

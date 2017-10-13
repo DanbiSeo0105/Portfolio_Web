@@ -11,7 +11,7 @@ namespace NMHI.Models.Repository.HIMS
     /// <summary>
     /// [HIMS] Record of treatment > Weekly/Monthly record of doctor
     /// </summary>
-    public class HIPM01003Data
+    public class DlyOpRcdData
     {
         private DataTable dt = new DataTable();
 
@@ -27,7 +27,7 @@ namespace NMHI.Models.Repository.HIMS
         {
             try
             {
-                dt = Config.QueryForTable("HIPM01003.SelEmpList", ent);
+                dt = Config.QueryForTable("DlyOpRcd.SelEmpList", ent);
                 return dt;
             }
             catch
@@ -52,7 +52,7 @@ namespace NMHI.Models.Repository.HIMS
         {
             try
             {
-                dt = Config.QueryForTable("HIPM01003.SelDetail", ent);
+                dt = Config.QueryForTable("DlyOpRcd.SelDetail", ent);
                 return dt;
             }
             catch
@@ -77,7 +77,7 @@ namespace NMHI.Models.Repository.HIMS
         {
             try
             {
-                dt = Config.QueryForTable("HIPM01003.SelIndPscdList", ent);
+                dt = Config.QueryForTable("DlyOpRcd.SelIndPscdList", ent);
                 return dt;
             }
             catch
@@ -103,7 +103,7 @@ namespace NMHI.Models.Repository.HIMS
         {
             try
             {
-                dt = Config.QueryForTable("HIPM01003.SelIndEmpWithAvgPscdList", ent);
+                dt = Config.QueryForTable("DlyOpRcd.SelIndEmpWithAvgPscdList", ent);
                 return dt;
             }
             catch

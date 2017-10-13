@@ -52,7 +52,7 @@
 
         function fncChart() {
 
-            $.ajax({ url: "/HIPM01003/Charts",
+            $.ajax({ url: "/DlyOpRcd/Charts",
                 cache: false,
                 type: 'post',
                 dataType: 'json',
@@ -120,7 +120,7 @@
              }).fadeIn(200);
             
             //List of ratio
-            $.ajax({ url: "/HIPM01003/EmpRtoList?type=@ent.pPrdDvsCd",
+            $.ajax({ url: "/DlyOpRcd/EmpRtoList?type=@ent.pPrdDvsCd",
                 cache: false,
                 type: 'post',
                 dataType: 'html',
@@ -146,7 +146,7 @@
         //1. Based on an index: A pie chart
         function fncEmpRtoChart() {
 
-            $.ajax({ url: "/HIPM01003/EmpRtoChart?type=@ent.pPrdDvsCd",
+            $.ajax({ url: "/DlyOpRcd/EmpRtoChart?type=@ent.pPrdDvsCd",
                 cache: false,
                 type: 'post',
                 dataType: 'json',
@@ -166,7 +166,7 @@
         //1.  Based on an index: A chart for trend (The average of hospital or department)
         function fncSetPscdChart() {
 
-            $.ajax({ url: "/HIPM01003/PscdChart?type=@ent.pPrdDvsCd",
+            $.ajax({ url: "/DlyOpRcd/PscdChart?type=@ent.pPrdDvsCd",
                 cache: false,
                 type: 'post',
                 dataType: 'json',
@@ -189,7 +189,7 @@
             var chart = $('#divPscdChart').highcharts();
 
             if ($(obj).is(":checked")) {
-                $.ajax({ url: "/HIPM01003/PscdChart?type=@ent.pPrdDvsCd",
+                $.ajax({ url: "/DlyOpRcd/PscdChart?type=@ent.pPrdDvsCd",
                     cache: false,
                     type: 'post',
                     dataType: 'json',
@@ -223,7 +223,7 @@
                 "top": (40 * pIdx) + "px"
             }).fadeIn(200);
             //List of records of index
-            $.ajax({ url: "/HIPM01003/IndList?type=@ent.pPrdDvsCd",
+            $.ajax({ url: "/DlyOpRcd/IndList?type=@ent.pPrdDvsCd",
                 cache: false,
                 type: 'post',
                 dataType: 'html',
@@ -250,7 +250,7 @@
 
             fncTableRowSelect("tblIndList", obj);
 
-            $.ajax({ url: "/HIPM01003/PscdChart?type=@ent.pPrdDvsCd",
+            $.ajax({ url: "/DlyOpRcd/PscdChart?type=@ent.pPrdDvsCd",
                 cache: false,
                 type: 'post',
                 dataType: 'json',

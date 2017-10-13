@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace NMHI.Models.Domain.INTRA
 {
-    public class INCU05Ent : ComnEnt
+    public class EmpInfoEnt : ComnEnt
     {
         /*GET PARAMETER*/
 

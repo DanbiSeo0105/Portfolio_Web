@@ -3,12 +3,12 @@
 <!--
 [Intranet] Community > Information of employees
 -->
-<sqlMap namespace="INCU05"
+<sqlMap namespace="EmpInfo"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://ibatis.apache.org/mapping">
 
   <alias>
-    <typeAlias alias="INCU05Ent" type="NMHI.Models.Domain.INTRA.INCU05Ent, NMHI" />
+    <typeAlias alias="EmpInfoEnt" type="NMHI.Models.Domain.INTRA.EmpInfoEnt, NMHI" />
   </alias>
   
   <statements>
@@ -19,7 +19,7 @@
     Date Written : 2016.01.20
     
     -->
-    <select id="SelListCnt" parameterClass="INCU05Ent">    
+    <select id="SelListCnt" parameterClass="EmpInfoEnt">    
 
       SELECT COUNT(EMP_NO)
         FROM (
@@ -98,7 +98,7 @@
     Date Written : 2016.01.20
     
     -->
-    <select id="SelList" parameterClass="INCU05Ent">
+    <select id="SelList" parameterClass="EmpInfoEnt">
       SELECT HSP_CD, HSP_NM, EMP_NO, STD_DT, EMP_NM, PTO_NM, SIGN_NM, BRDY_DT, BRDY_DVS, SSNO
            , EMAIL, ZIP_CD, ADDR, JICP_DT, LVCP_DT, DEPT_CD, DEPT_NM, REAL_HSP_CD
            , OCGR_CD, OCGR_NM, OCTY_CD, OCTY_NM, PSTN_NM, OCRS_NM, PSTN_CD, OCRS_CD, WRK_STAT_CD
@@ -186,7 +186,7 @@
     Date Written : 2016.01.23
     
     -->
-    <select id="EmpDetail" parameterClass="INCU05Ent" resultClass="INCU05Ent">
+    <select id="EmpDetail" parameterClass="EmpInfoEnt" resultClass="EmpInfoEnt">
       SELECT A.HSP_CD, EMP_NO, STD_DT, EMP_NM, PTO_NM, SIGN_NM
            , DECODE(BRDY_DT,NULL,'19001231', BRDY_DT) AS BRDY_DT
            , BRDY_DVS, SSNO, EMAIL, ZIP_CD, ADDR, JICP_DT, LVCP_DT, A.DEPT_CD, B.DEPT_NM AS DEPT_NM
@@ -231,7 +231,7 @@
     Date Written : 2016.01.23
     
     -->
-	  <select id="SelEmpList" parameterClass="INCU05Ent" resultClass="INCU05Ent">
+	  <select id="SelEmpList" parameterClass="EmpInfoEnt" resultClass="EmpInfoEnt">
 
 		 SELECT EMP_NO
 		 	  , EMP_NM
@@ -247,7 +247,7 @@
     Date Written : 2016.06.24
     
     -->
-    <select id="SelVctInfo" parameterClass="INCU05Ent">
+    <select id="SelVctInfo" parameterClass="EmpInfoEnt">
       <![CDATA[
       SELECT V.VCT_CNT                                                         
            , NVL(A.VCT_USE_DYS, 0) AS VCT_USE_DYS                                   
@@ -327,7 +327,7 @@
     Date Written : 2016.01.23
     
     -->
-    <select id="SelHstList" parameterClass="INCU05Ent">      
+    <select id="SelHstList" parameterClass="EmpInfoEnt">      
       SELECT TO_CHAR(TO_DATE(A.STD_DT,'YYYYMMDD'),'YYYY-MM-DD') STD_DT_NM
             , STD_DT
             , A.HSP_CD
@@ -382,7 +382,7 @@
     Date Written : 2016.01.24
     
     -->
-    <update id="InsEmp" parameterClass="INCU05Ent">
+    <update id="InsEmp" parameterClass="EmpInfoEnt">
       INSERT INTO CM_EMP_MST
             ( HSP_CD
             , EMP_NO
@@ -449,7 +449,7 @@
     Date Written : 2016.01.24
     
     -->
-    <update id="UpdEmp" parameterClass="INCU05Ent">
+    <update id="UpdEmp" parameterClass="EmpInfoEnt">
       UPDATE CM_EMP_MST
          SET EMP_NM = #txtEmpNm#
           <isNotEmpty property="pPtoNm">
@@ -486,7 +486,7 @@
     Date Written : 2016.03.22
     
     -->
-    <update id="DelEmp" parameterClass="INCU05Ent">
+    <update id="DelEmp" parameterClass="EmpInfoEnt">
       DELETE FROM CM_EMP_MST
        WHERE HSP_CD = #cboHspCd#
          AND EMP_NO = #pEmpNo#
@@ -499,7 +499,7 @@
     Date Written : 2016.06.25
     
     -->
-    <select id="SelIndRslt" parameterClass="INCU05Ent">                 
+    <select id="SelIndRslt" parameterClass="EmpInfoEnt">                 
       SELECT A.IND_CD
            , B.IND_NM
            , NVL(SUM(A.TMM_RSLT),0) AS RSLT
@@ -526,7 +526,7 @@
     Date Written : 2016.06.24
     
     -->
-    <select id="SelExamList" parameterClass="INCU05Ent">
+    <select id="SelExamList" parameterClass="EmpInfoEnt">
       <isEqual property="pTabDvs" compareValue="tot">
       SELECT A.*
         FROM (
@@ -569,7 +569,7 @@
     Date Written : 2016.06.24
     
     -->
-    <select id="SelEvltList" parameterClass="INCU05Ent">      
+    <select id="SelEvltList" parameterClass="EmpInfoEnt">      
       <isEqual property="pTabDvs" compareValue="tot">
       SELECT A.*
         FROM (
@@ -610,7 +610,7 @@
     Date Written : 2016.06.24
     
     -->
-    <select id="SelCnslList" parameterClass="INCU05Ent">
+    <select id="SelCnslList" parameterClass="EmpInfoEnt">
       SELECT C.CNSL_SEQ
            , TO_CHAR(TO_DATE(C.CNSL_DT,'YYYYMMDD'),'YYYY-MM-DD') CNSL_DT
            , C.CNSL_EMP_NO
@@ -641,7 +641,7 @@
     Date Written : 2016.04.29
     
     -->
-    <select id="SelPrsList" parameterClass="INCU05Ent">
+    <select id="SelPrsList" parameterClass="EmpInfoEnt">
       SELECT P.PRS_SEQ
            , TO_CHAR(TO_DATE(P.PRS_DT,'YYYYMMDD'),'YYYY-MM-DD') PRS_DT
            , P.PRS_EMP_NO
@@ -667,7 +667,7 @@
     Date Written : 2016.06.25
     
     -->
-    <select id="SelMaxExamSeq" parameterClass="INCU05Ent">
+    <select id="SelMaxExamSeq" parameterClass="EmpInfoEnt">
       SELECT NVL(MAX(DISTINCT EDU_SEQ),0) + 1
         FROM CM_EMP_EDU_HST
        WHERE HSP_CD      = #cboHspCd#
@@ -680,7 +680,7 @@
     Date Written : 2016.06.25
     
     -->
-    <update id="InsExam" parameterClass="INCU05Ent">
+    <update id="InsExam" parameterClass="EmpInfoEnt">
       INSERT INTO CM_EMP_EDU_HST
            ( HSP_CD
            , EMP_NO
@@ -721,7 +721,7 @@
     Date Written : 2016.06.25
     
     -->
-    <update id="UpdExam" parameterClass="INCU05Ent">
+    <update id="UpdExam" parameterClass="EmpInfoEnt">
       UPDATE CM_EMP_EDU_HST
          SET EDU_DT      = #txtExamDt#
            , EDU_CD      = #cboExamCd#
@@ -744,7 +744,7 @@
     Date Written : 2016.06.25
     
     -->
-    <update id="DelExam" parameterClass="INCU05Ent">
+    <update id="DelExam" parameterClass="EmpInfoEnt">
       DELETE CM_EMP_EDU_HST
        WHERE HSP_CD      = #cboHspCd#
          AND EMP_NO      = #pEmpNo#
@@ -757,7 +757,7 @@
     Date Written : 2016.06.25
     
     -->
-    <select id="SelMaxCnslSeq" parameterClass="INCU05Ent">
+    <select id="SelMaxCnslSeq" parameterClass="EmpInfoEnt">
       SELECT NVL(MAX(DISTINCT CNSL_SEQ),0) + 1
         FROM CM_EMP_CNSL_HST
        WHERE HSP_CD      = #cboHspCd#
@@ -770,7 +770,7 @@
     Date Written : 2016.06.25
     
     -->
-    <update id="InsCnsl" parameterClass="INCU05Ent">
+    <update id="InsCnsl" parameterClass="EmpInfoEnt">
       INSERT INTO CM_EMP_CNSL_HST
            ( HSP_CD
            , EMP_NO
@@ -797,7 +797,7 @@
            )
     </update>
 
-    <update id="UpdCnsl" parameterClass="INCU05Ent">
+    <update id="UpdCnsl" parameterClass="EmpInfoEnt">
       UPDATE CM_EMP_CNSL_HST
          SET CNSL_DT     = #txtCnslDt#
            , CNSL_EMP_NO = #hdnCnslEmpNo#
@@ -811,7 +811,7 @@
          AND CNSL_SEQ    = #txtCnslSeq#
     </update>
 
-    <update id="DelCnsl" parameterClass="INCU05Ent">
+    <update id="DelCnsl" parameterClass="EmpInfoEnt">
       DELETE CM_EMP_CNSL_HST
        WHERE HSP_CD      = #cboHspCd#
          AND EMP_NO      = #pEmpNo#
@@ -825,7 +825,7 @@
     Date Written : 2016.04.29
     
     -->
-    <select id="SelMaxPrsSeq" parameterClass="INCU05Ent">
+    <select id="SelMaxPrsSeq" parameterClass="EmpInfoEnt">
       SELECT NVL(MAX(DISTINCT PRS_SEQ),0) + 1
         FROM CM_EMP_PRS_HST
        WHERE HSP_CD      = #cboHspCd#
@@ -839,7 +839,7 @@
     Date Written : 2016.04.29
     
     -->
-    <update id="InsPrs" parameterClass="INCU05Ent">
+    <update id="InsPrs" parameterClass="EmpInfoEnt">
       INSERT INTO CM_EMP_PRS_HST
            ( HSP_CD
            , EMP_NO
@@ -864,7 +864,7 @@
            )
     </update>
 
-    <update id="UpdPrs" parameterClass="INCU05Ent">
+    <update id="UpdPrs" parameterClass="EmpInfoEnt">
       UPDATE CM_EMP_PRS_HST
          SET PRS_DT      = #txtPrsDt#
            , PRS_EMP_NO  = #hdnPrsEmpNo#
@@ -877,7 +877,7 @@
          AND PRS_SEQ     = #txtPrsSeq#
     </update>
 
-    <update id="DelPrs" parameterClass="INCU05Ent">
+    <update id="DelPrs" parameterClass="EmpInfoEnt">
       DELETE CM_EMP_PRS_HST
        WHERE HSP_CD  = #cboHspCd#
          AND EMP_NO  = #pEmpNo#

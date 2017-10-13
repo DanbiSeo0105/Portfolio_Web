@@ -2,7 +2,7 @@
     ViewBag.Title = "Employee information";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    NMHI.Models.Domain.INTRA.INCU05Ent ent = ViewBag.ent;
+    NMHI.Models.Domain.INTRA.EmpInfoEnt ent = ViewBag.ent;
 }
 
 @section Header {
@@ -23,7 +23,7 @@
              $("#page").val(page);
              $("#tot").val(tot);
          }
-         $.ajax({ url: "/INCU05/List" + GetQueryString(),
+         $.ajax({ url: "/EmpInfo/List" + GetQueryString(),
              cache: false,
              type: 'post',
              dataType: 'html',
@@ -41,7 +41,7 @@
 
      //Details
      function fncDetail(pHspCd, pEmpNo, pStdDt, pRealDeptCd) {
-         location.href = "/INCU05/Detail" + GetQueryString() + "&pHspCd=" + pHspCd + "&pEmpNo=" + pEmpNo + "&pStdDt=" + pStdDt + "&pRealDeptCd=" + pRealDeptCd;
+         location.href = "/EmpInfo/Detail" + GetQueryString() + "&pHspCd=" + pHspCd + "&pEmpNo=" + pEmpNo + "&pStdDt=" + pStdDt + "&pRealDeptCd=" + pRealDeptCd;
      }
 
      //Search filter QueryString

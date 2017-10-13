@@ -15,9 +15,9 @@ namespace NMHI.Controllers.HIMS
     /// <summary>
     /// [HIMS] Record of treatment > Weekly/Monthly record of doctor
     /// </summary>
-    public class HIPM01003Controller : Controller
+    public class DlyOpRcdController : Controller
     {
-        private HIPM01003Data data = new HIPM01003Data();
+        private DlyOpRcdData data = new DlyOpRcdData();
 
         /// <summary>
         /// Description : Individual Doctor's record
@@ -187,7 +187,7 @@ namespace NMHI.Controllers.HIMS
             
             ViewBag.ent = ent;
 
-            DataTable dt = (new HIPM00000Data()).GetIndEmpRtoList(ent);
+            DataTable dt = (new OpRcd00000Data()).GetIndEmpRtoList(ent);
             ViewBag.dt = dt;
             TempData["dt"] = dt;
 
@@ -207,7 +207,7 @@ namespace NMHI.Controllers.HIMS
             DataTable dt;
             ent.pPrdDvsCd = string.IsNullOrEmpty(ent.type) ? "D" : ent.type;
 
-            dt = (new HIPM00000Data()).GetIndEmpRtoList(ent);
+            dt = (new OpRcd00000Data()).GetIndEmpRtoList(ent);
             UnitInfo unitInfo = (new UnitInfo()).GetUnitInfo(dt, 5);
 
             List<Dictionary<string, object>> rows = Chart.GetPieData(dt, unitInfo);
@@ -229,7 +229,7 @@ namespace NMHI.Controllers.HIMS
             ViewBag.ent = ent;
 
             ViewBag.drEmp = (new ComnData()).GetEmpDetail(ent.sesHspCd, ent.pPrdYm, ent.pEmpNo);
-            ViewBag.dt = (new HIPM00000Data()).GetIndList(ent);
+            ViewBag.dt = (new OpRcd00000Data()).GetIndList(ent);
             return PartialView();
         }
 
@@ -258,7 +258,7 @@ namespace NMHI.Controllers.HIMS
                 //No refresh the original value of UnitInfo
                 if (ent.pEmpNo == string.Empty) //The average of department
                 {
-                    dt = (new HIPM00000Data()).GetIndAvgPscdList(ent);
+                    dt = (new OpRcd00000Data()).GetIndAvgPscdList(ent);
 
                     //1. When search for the average of hospital or the average of department, refresh UnitInfo 
                     unitInfo = (new UnitInfo()).GetUnitInfo(dt, 2);
@@ -289,7 +289,7 @@ namespace NMHI.Controllers.HIMS
                 }
                 else
                 {
-                    dt = (new HIPM01003Data()).GetIndPscdList(ent);
+                    dt = (new DlyOpRcdData()).GetIndPscdList(ent);
 
 					//When search for the individual record, bring the value for UnitInfo from TempData
                     unitInfo = TempData["unitInfo"] != null ? (UnitInfo)TempData["unitInfo"] : (new UnitInfo()).GetUnitInfo(dt, 2);
@@ -318,7 +318,7 @@ namespace NMHI.Controllers.HIMS
             else
             {
 				// When the value is 'EmpPop', search the average record of hospital or doctors the EmpPop at once.
-                dt = (new HIPM01003Data()).GetIndEmpWithAvgPscdList(ent); 
+                dt = (new DlyOpRcdData()).GetIndEmpWithAvgPscdList(ent); 
                 unitInfo = (new UnitInfo()).GetUnitInfo(dt, 2, 3);
                 rows = new List<Dictionary<string, object>>();
                 Dictionary<string, object> lstHspAvg = new Dictionary<string, object>();

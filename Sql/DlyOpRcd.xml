@@ -3,7 +3,7 @@
 <!--
 [HIMS] Record of treatment > Daily Operating Records / Monthly Operating Records
 -->
-<sqlMap namespace="HIPM01003"
+<sqlMap namespace="DlyOpRcd"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://ibatis.apache.org/mapping">
 

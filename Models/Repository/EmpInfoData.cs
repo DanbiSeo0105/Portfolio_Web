@@ -13,7 +13,7 @@ namespace NMHI.Models.Repository.INTRA
     /// <summary>
     /// [Intranet] Community > Employees information
     /// </summary>
-    public class INCU05Data
+    public class EmpInfoData
     {
         private DataTable dt = new DataTable();
         private ISqlMapper mapper = EMapper.Instance;
@@ -25,11 +25,11 @@ namespace NMHI.Models.Repository.INTRA
         ///  
         /// </summary>
         /// <returns></returns>        
-        public int GetListCnt(INCU05Ent ent)
+        public int GetListCnt(EmpInfoEnt ent)
         {
             try
             {
-                return Convert.ToInt32(mapper.QueryForObject("INCU05.SelListCnt", ent));
+                return Convert.ToInt32(mapper.QueryForObject("EmpInfo.SelListCnt", ent));
             }
             catch
             {
@@ -44,11 +44,11 @@ namespace NMHI.Models.Repository.INTRA
         ///  
         /// </summary>
         /// <returns></returns>
-        public DataTable GetList(INCU05Ent ent)
+        public DataTable GetList(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelList", ent);
+                dt = Config.QueryForTable("EmpInfo.SelList", ent);
                 return dt;
             }
             catch
@@ -68,11 +68,11 @@ namespace NMHI.Models.Repository.INTRA
         ///  
         /// </summary>
         /// <returns></returns>
-        public DataRow EmpDetail(INCU05Ent ent)
+        public DataRow EmpDetail(EmpInfoEnt ent)
         {
             try
             {        
-                dt = Config.QueryForTable("INCU05.EmpDetail", ent);
+                dt = Config.QueryForTable("EmpInfo.EmpDetail", ent);
                 if (dt.Rows.Count > 0)
                     return dt.Rows[0];
                 else
@@ -98,11 +98,11 @@ namespace NMHI.Models.Repository.INTRA
 		///  
 		/// </summary>
 		/// <returns></returns>
-		public DataTable GetEmpList(INCU05Ent ent)
+		public DataTable GetEmpList(EmpInfoEnt ent)
 		{
 			try
 			{
-				dt = Config.QueryForTable("INCU05.SelEmpList", ent);
+				dt = Config.QueryForTable("EmpInfo.SelEmpList", ent);
 				return dt;
 			}
 			catch
@@ -124,11 +124,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataRow GetVctInfo(INCU05Ent ent)
+        public DataRow GetVctInfo(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelVctInfo", ent);
+                dt = Config.QueryForTable("EmpInfo.SelVctInfo", ent);
                 if (dt.Rows.Count > 0)
                 {
                     return dt.Rows[0];
@@ -155,11 +155,11 @@ namespace NMHI.Models.Repository.INTRA
         ///  
         /// </summary>
         /// <returns></returns>
-        public DataTable GetHstList(INCU05Ent ent)
+        public DataTable GetHstList(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelHstList", ent);
+                dt = Config.QueryForTable("EmpInfo.SelHstList", ent);
                 return dt;
             }
             catch
@@ -180,11 +180,11 @@ namespace NMHI.Models.Repository.INTRA
         ///  
         /// </summary>
         /// <returns></returns>
-        public DataTable UpdateBiz(INCU05Ent ent)
+        public DataTable UpdateBiz(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.UpdateBiz", ent);
+                dt = Config.QueryForTable("EmpInfo.UpdateBiz", ent);
                 return dt;
             }
             catch
@@ -204,11 +204,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataTable GetIndRsltList(INCU05Ent ent)
+        public DataTable GetIndRsltList(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelIndRslt", ent);
+                dt = Config.QueryForTable("EmpInfo.SelIndRslt", ent);
                 return dt;
             }
             catch
@@ -228,10 +228,10 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataTable GetExamList(INCU05Ent ent)
+        public DataTable GetExamList(EmpInfoEnt ent)
         {
             try{
-                dt = Config.QueryForTable("INCU05.SelExamList", ent);
+                dt = Config.QueryForTable("EmpInfo.SelExamList", ent);
                 return dt;
             }catch{
                 return dt;
@@ -247,10 +247,10 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataRow GetExamInfo(INCU05Ent ent)
+        public DataRow GetExamInfo(EmpInfoEnt ent)
         {
             try{
-                dt = Config.QueryForTable("INCU05.SelExamList",ent);
+                dt = Config.QueryForTable("EmpInfo.SelExamList",ent);
                 if(dt.Rows.Count > 0){
                     return dt.Rows[0];
                 }else{
@@ -270,11 +270,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataTable GetEvltList(INCU05Ent ent)
+        public DataTable GetEvltList(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelEvltList", ent);
+                dt = Config.QueryForTable("EmpInfo.SelEvltList", ent);
                 return dt;
             }
             catch
@@ -294,11 +294,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataRow GetEvltInfo(INCU05Ent ent)
+        public DataRow GetEvltInfo(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelEvltList", ent);
+                dt = Config.QueryForTable("EmpInfo.SelEvltList", ent);
                 if (dt.Rows.Count > 0)
                 {
                     return dt.Rows[0];
@@ -325,11 +325,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataTable GetCnslList(INCU05Ent ent)
+        public DataTable GetCnslList(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelCnslList", ent);
+                dt = Config.QueryForTable("EmpInfo.SelCnslList", ent);
                 return dt;
             }
             catch
@@ -349,11 +349,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataRow GetCnslInfo(INCU05Ent ent)
+        public DataRow GetCnslInfo(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelCnslList", ent);
+                dt = Config.QueryForTable("EmpInfo.SelCnslList", ent);
                 if (dt.Rows.Count > 0)
                 {
                     return dt.Rows[0];
@@ -382,11 +382,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataTable GetPrsList(INCU05Ent ent)
+        public DataTable GetPrsList(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelPrsList", ent);
+                dt = Config.QueryForTable("EmpInfo.SelPrsList", ent);
                 return dt;
             }
             catch
@@ -408,11 +408,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public DataRow GetPrsInfo(INCU05Ent ent)
+        public DataRow GetPrsInfo(EmpInfoEnt ent)
         {
             try
             {
-                dt = Config.QueryForTable("INCU05.SelPrsList", ent);
+                dt = Config.QueryForTable("EmpInfo.SelPrsList", ent);
                 if (dt.Rows.Count > 0)
                 {
                     return dt.Rows[0];
@@ -441,11 +441,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public int GetMaxExamSeq(INCU05Ent ent)
+        public int GetMaxExamSeq(EmpInfoEnt ent)
         {
             try
             {
-                return Convert.ToInt32(mapper.QueryForObject("INCU05.SelMaxExamSeq", ent));
+                return Convert.ToInt32(mapper.QueryForObject("EmpInfo.SelMaxExamSeq", ent));
             }
             catch
             {
@@ -461,11 +461,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public int GetMaxCnslSeq(INCU05Ent ent)
+        public int GetMaxCnslSeq(EmpInfoEnt ent)
         {
             try
             {
-                return Convert.ToInt32(mapper.QueryForObject("INCU05.SelMaxCnslSeq", ent));
+                return Convert.ToInt32(mapper.QueryForObject("EmpInfo.SelMaxCnslSeq", ent));
             }
             catch
             {
@@ -481,11 +481,11 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public int GetMaxPrsSeq(INCU05Ent ent)
+        public int GetMaxPrsSeq(EmpInfoEnt ent)
         {
             try
             {
-                return Convert.ToInt32(mapper.QueryForObject("INCU05.SelMaxPrsSeq", ent));
+                return Convert.ToInt32(mapper.QueryForObject("EmpInfo.SelMaxPrsSeq", ent));
             }
             catch
             {
@@ -501,7 +501,7 @@ namespace NMHI.Models.Repository.INTRA
         /// </summary>
         /// <param name="ent"></param>
         /// <returns></returns>
-        public bool GetEmpHstBiz(INCU05Ent ent)
+        public bool GetEmpHstBiz(EmpInfoEnt ent)
         {
             try
             {
@@ -534,7 +534,7 @@ namespace NMHI.Models.Repository.INTRA
                 for (int i = 0; i < pRange; i++)
                 {  
                     ent.pStdDt = i == 0 ? ent.pStdDt : pStdDt.AddMonths(i).ToString("yyyyMMdd");
-                    mapper.QueryForObject("INCU05.PrcPpCmEmpHst", ent);
+                    mapper.QueryForObject("EmpInfo.PrcPpCmEmpHst", ent);
                 }
                 return true;
             }
