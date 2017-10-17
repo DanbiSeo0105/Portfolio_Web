@@ -31,8 +31,7 @@ namespace NMHI.Controllers.HIMS
         {
             ent.pPrdDvsCd = string.IsNullOrEmpty(ent.type) ? "D" : ent.type;
             ent.pCond3 = string.IsNullOrEmpty(ent.pCond3) ? "1" : ent.pCond3; 
-            ent.pCond2 = ent.pCond3 == "1" ? "1" : "2";
-            
+            ent.pCond2 = ent.pCond3 == "1" ? "1" : "2";            
             ent.pPrdYm = ent.pPrdYr + ent.pPrdMm;                                    
             
             ViewBag.ent = ent;
@@ -170,7 +169,7 @@ namespace NMHI.Controllers.HIMS
                     nIndex++;
                 }
             }
-            return Json(rows, JsonRequestBehavior.AllowGet);       
+            return Json(rows, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -183,10 +182,9 @@ namespace NMHI.Controllers.HIMS
         /// <returns></returns>
         public ActionResult EmpRtoList(ComnEnt ent)
         {
-            ent.pPrdDvsCd = string.IsNullOrEmpty(ent.type) ? "D" : ent.type;
-            
+            ent.pPrdDvsCd = string.IsNullOrEmpty(ent.type) ? "D" : ent.type;            
             ViewBag.ent = ent;
-
+			
             DataTable dt = (new OpRcd00000Data()).GetIndEmpRtoList(ent);
             ViewBag.dt = dt;
             TempData["dt"] = dt;
@@ -209,7 +207,6 @@ namespace NMHI.Controllers.HIMS
 
             dt = (new OpRcd00000Data()).GetIndEmpRtoList(ent);
             UnitInfo unitInfo = (new UnitInfo()).GetUnitInfo(dt, 5);
-
             List<Dictionary<string, object>> rows = Chart.GetPieData(dt, unitInfo);
 
             return Json(rows, JsonRequestBehavior.AllowGet);

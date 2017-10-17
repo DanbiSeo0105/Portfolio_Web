@@ -196,9 +196,7 @@ namespace NMHI.Controllers.INTRA
             RsltEnt rslt = new RsltEnt();
             string strMode = ent.hdnMode;
 
-
             #region attach file
-
             HttpPostedFileBase flePto = Request.Files["flePto"];
 
             // Uploadig photo
@@ -213,7 +211,6 @@ namespace NMHI.Controllers.INTRA
                     ent.pPtoNm = strFullPath.Substring(strFullPath.LastIndexOf("\\") + 1);
                 }
             }
-
             #endregion
 
             #region 
@@ -231,14 +228,13 @@ namespace NMHI.Controllers.INTRA
             }
             else if (ent.hdnMode == "H") // adding history
             {
-                if (ent.pPtoNm == "")
-                {   // original image INSERT
+                if (ent.pPtoNm == "")    // original image INSERT
+                {   
                     ent.pPtoNm = ent.hdnPto;
                 }
                 rslt = cd.Update(ent, strMode, "EmpInfo.InsEmp");
             }
-            #endregion
-            
+            #endregion            
             return Json(rslt, "text/json");
         }
 
